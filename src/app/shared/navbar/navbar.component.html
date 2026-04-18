@@ -1,0 +1,26 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/home">InkWell</a>
+  </div>
+
+  <div class="navbar-links">
+    @if (!authService.isAuthenticated()) {
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Register</a>
+    }
+
+    @if (authService.isAuthenticated()) {
+      <a routerLink="/profile">Profile</a>
+
+      @if (authService.hasRole('Author') || authService.hasRole('Admin')) {
+        <a routerLink="/author">Dashboard</a>
+      }
+
+      @if (authService.hasRole('Admin')) {
+        <a routerLink="/admin">Admin</a>
+      }
+
+      <button (click)="onLogout()">Logout</button>
+    }
+  </div>
+</nav>
