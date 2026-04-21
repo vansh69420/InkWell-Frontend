@@ -1,0 +1,52 @@
+.container {
+  max-width: 900px;
+  margin: 16px auto;
+  padding: 0 12px;
+}
+
+.posts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.post-card {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.post-title {
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.post-title:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.btn {
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.error {
+  background: #ffe3e3;
+  padding: 10px;
+  border: 1px solid #ffb3b3;
+  margin: 10px 0;
+}
+
+.info {
+  color: #555;
+  margin: 10px 0;
+}

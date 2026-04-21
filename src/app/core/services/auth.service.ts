@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly baseUrl = `${environment.services.auth}/api/auth`;
+  private readonly baseUrl = `${environment.gateway}/auth`;
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoading = signal(false);

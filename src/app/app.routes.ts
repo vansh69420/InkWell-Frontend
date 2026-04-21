@@ -2,16 +2,32 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
-  },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+
   {
     path: 'home',
     loadComponent: () =>
       import('./features/home/home.component').then((m) => m.HomeComponent),
   },
+
+  // NEW: Post detail (slug allowed in URL)
+  {
+    path: 'post/:slug',
+    loadComponent: () =>
+      import('./features/posts/post-detail/post-detail.component').then(
+        (m) => m.PostDetailComponent
+      ),
+  },
+
+  // NEW: Author page (NO authorId in URL; uses router state)
+  {
+    path: 'author',
+    loadComponent: () =>
+      import('./features/author/author.component').then(
+        (m) => m.AuthorComponent
+      ),
+  },
+
   {
     path: 'login',
     loadComponent: () =>
@@ -34,8 +50,6 @@ export const routes: Routes = [
         (m) => m.ProfileComponent
       ),
   },
-  {
-    path: '**',
-    redirectTo: 'home',
-  },
+
+  { path: '**', redirectTo: 'home' },
 ];

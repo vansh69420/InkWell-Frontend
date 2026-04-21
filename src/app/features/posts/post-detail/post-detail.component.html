@@ -1,0 +1,20 @@
+<div class="container">
+  <a routerLink="/home">← Back to feed</a>
+
+  <div *ngIf="loading" class="info">Loading post...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && post">
+    <h2 class="title">{{ post.title }}</h2>
+
+    <div class="meta">
+      <span>Read: {{ post.readTimeMin }} min</span>
+      <span>Views: {{ post.viewCount }}</span>
+      <span>Likes: {{ post.likesCount }}</span>
+    </div>
+
+    <div class="excerpt" *ngIf="post.excerpt">{{ post.excerpt }}</div>
+
+    <div class="content" [innerHTML]="sanitizedContent"></div>
+  </ng-container>
+</div>
