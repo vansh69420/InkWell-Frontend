@@ -1,0 +1,76 @@
+<div class="container">
+  <h2>InkWell — Public Feed</h2>
+
+  <div class="toolbar">
+    <input
+      class="input"
+      [(ngModel)]="keyword"
+      placeholder="Search posts by keyword..."
+      (keydown.enter)="onSearch()"
+    />
+    <button class="btn" (click)="onSearch()">Search</button>
+    <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
+  </div>
+
+  <div class="filters">
+    <label>
+      Category:
+      <select class="select" [(ngModel)]="selectedCategoryId" (change)="onCategoryChange()">
+        <option [ngValue]="null">All</option>
+        <option *ngFor="let c of categories" [ngValue]="c.categoryId">
+          {{ c.name }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Tag:
+      <select class="select" [(ngModel)]="selectedTagId" (change)="onTagChange()">
+        <option [ngValue]="null">All</option>
+        <option *ngFor="let t of tags" [ngValue]="t.tagId">
+          {{ t.name }}
+        </option>
+      </select>
+    </label>
+  </div>
+
+  <!-- Optional: show filter loading/errors without blocking posts -->
+  <div class="info" *ngIf="loadingCategories">Loading categories...</div>
+  <div class="error" *ngIf="errorCategories">{{ errorCategories }}</div>
+
+  <div class="info" *ngIf="loadingTags">Loading tags...</div>
+  <div class="error" *ngIf="errorTags">{{ errorTags }}</div>
+
+  <!-- Posts status -->
+  <div *ngIf="loadingPosts" class="info">Loading posts...</div>
+  <div *ngIf="errorPosts" class="error">{{ errorPosts }}</div>
+
+  <div *ngIf="!loadingPosts && posts.length === 0" class="info">
+    No posts found.
+  </div>
+
+  <div class="posts">
+    <div class="post-card" *ngFor="let p of posts; trackBy: trackByPostId">
+      <div class="post-title" (click)="openPost(p.slug)">
+        {{ p.title }}
+      </div>
+
+      <div class="post-meta">
+        <span>Read: {{ p.readTimeMin }} min</span>
+        <span>Views: {{ p.viewCount }}</span>
+        <span>Likes: {{ p.likesCount }}</span>
+      </div>
+
+      <div class="post-excerpt">
+        {{ p.excerpt }}
+      </div>
+
+      <div class="post-actions">
+        <button class="btn" (click)="openPost(p.slug)">Read</button>
+        <button class="btn btn-secondary" (click)="openAuthor(p.authorId)">
+          More from author
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

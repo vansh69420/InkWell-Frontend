@@ -1,0 +1,25 @@
+<div class="container">
+  <a routerLink="/home">← Back to feed</a>
+
+  <h2>Author Posts</h2>
+
+  <div *ngIf="loading" class="info">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && posts.length === 0" class="info">
+    No published posts for this author.
+  </div>
+
+  <div class="posts" *ngIf="!loading && !error">
+    <div class="post-card" *ngFor="let p of posts">
+      <div class="post-title" (click)="openPost(p.slug)">{{ p.title }}</div>
+      <div class="post-meta">
+        <span>Read: {{ p.readTimeMin }} min</span>
+        <span>Views: {{ p.viewCount }}</span>
+        <span>Likes: {{ p.likesCount }}</span>
+      </div>
+      <div class="post-excerpt">{{ p.excerpt }}</div>
+      <button class="btn" (click)="openPost(p.slug)">Read</button>
+    </div>
+  </div>
+</div>

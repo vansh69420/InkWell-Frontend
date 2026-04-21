@@ -1,0 +1,41 @@
+.container {
+  max-width: 900px;
+  margin: 16px auto;
+  padding: 0 12px;
+}
+
+.title {
+  margin-top: 12px;
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  color: #666;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+.excerpt {
+  margin: 12px 0;
+  padding: 10px;
+  background: #fafafa;
+  border: 1px solid #eee;
+}
+
+.content {
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+.error {
+  background: #ffe3e3;
+  padding: 10px;
+  border: 1px solid #ffb3b3;
+  margin: 10px 0;
+}
+
+.info {
+  color: #555;
+  margin: 10px 0;
+}
