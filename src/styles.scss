@@ -1,39 +1,89 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
+:root {
+  --bg: #0b1220;
+  --panel: #0f1a30;
+  --card: #111f3a;
+  --text: #e8eefc;
+  --muted: #a9b6d3;
+  --primary: #7c5cff;
+  --primary-2: #4cc9f0;
+  --danger: #ff4d6d;
 
-html {
-  height: 100%;
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+  --border: 1px solid rgba(255,255,255,.08);
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --card: #ffffff;
+    --text: #0e1320;
+    --muted: #4b5568;
+    --shadow: 0 10px 30px rgba(15,23,42,.08);
+    --border: 1px solid rgba(15,23,42,.08);
+  }
 }
-/* You can add global styles to this file, and also import other style files */
+
+html, body {
+  height: 100%;
+  background: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,.25), transparent),
+              radial-gradient(900px 500px at 100% 0%, rgba(76,201,240,.18), transparent),
+              var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 18px auto;
+  padding: 0 14px;
+}
+
+.card {
+  background: var(--card);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.secondary {
+  background: transparent;
+  border: var(--border);
+  color: var(--text);
+}
+
+.btn.danger {
+  background: var(--danger);
+}
+
+.input, .select {
+  width: 100%;
+  border-radius: 12px;
+  border: var(--border);
+  background: rgba(255,255,255,.02);
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.muted { color: var(--muted); }
+
+.tiptap {
+  min-height: 260px;
+  border-radius: 14px;
+  border: var(--border);
+  padding: 12px;
+  background: rgba(255,255,255,.02);
+}

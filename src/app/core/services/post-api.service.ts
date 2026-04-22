@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { AuthorPostsResponse, PostDetail, PostSummary, PostCountResponse } from '../models/post.model';
-
+import { CreatePostRequest, UpdatePostRequest, MyPostSummary, PostEditor } from '../models/post-write.model';
 @Injectable({ providedIn: 'root' })
 export class PostApiService {
   private http = inject(HttpClient);
@@ -36,6 +36,34 @@ export class PostApiService {
   getCount() {
     return this.http.get<PostCountResponse>(`${this.base}/posts/count`);
   }
+
+  getMyPosts() {
+  return this.http.get<MyPostSummary[]>(`${this.base}/posts/me`);
+}
+
+getForEdit(postId: string) {
+  return this.http.get<PostEditor>(`${this.base}/posts/${postId}`);
+}
+
+createPost(req: CreatePostRequest) {
+  return this.http.post<PostEditor>(`${this.base}/posts`, req);
+}
+
+updatePost(postId: string, req: UpdatePostRequest) {
+  return this.http.put<PostEditor>(`${this.base}/posts/${postId}`, req);
+}
+
+publish(postId: string) {
+  return this.http.put<PostEditor>(`${this.base}/posts/${postId}/publish`, {});
+}
+
+unpublish(postId: string) {
+  return this.http.put<PostEditor>(`${this.base}/posts/${postId}/unpublish`, {});
+}
+
+delete(postId: string) {
+  return this.http.delete<void>(`${this.base}/posts/${postId}`);
+}
 
   // Unique-session view counting relies on cookies; must use withCredentials
   recordView(postId: string) {

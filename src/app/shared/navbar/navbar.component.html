@@ -13,7 +13,7 @@
       <a routerLink="/profile">Profile</a>
 
       @if (authService.hasRole('Author') || authService.hasRole('Admin')) {
-        <a routerLink="/author">Dashboard</a>
+        <a routerLink="/author/dashboard">Dashboard</a>
       }
 
       @if (authService.hasRole('Admin')) {
