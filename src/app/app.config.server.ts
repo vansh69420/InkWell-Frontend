@@ -6,9 +6,6 @@ import { serverRoutes } from './app.routes.server';
 
 const serverConfig: ApplicationConfig = {
   providers: [
-    // ✅ ensures HttpClient works in Node/prerender
-    provideHttpClient(withFetch()),
-
     provideServerRendering(withRoutes(serverRoutes)),
   ],
 };

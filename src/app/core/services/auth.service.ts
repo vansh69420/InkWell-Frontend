@@ -13,9 +13,13 @@ export class AuthService {
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoading = signal(false);
+  readonly sessionRestored = signal(false);
+  readonly isServer = signal(false);
 
   async restoreSession(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
+      this.isServer.set(true);
+      this.sessionRestored.set(true);
       return;
     }
 
@@ -26,6 +30,8 @@ export class AuthService {
       this.currentUser.set(user);
     } catch {
       this.currentUser.set(null);
+    } finally {
+      this.sessionRestored.set(true);
     }
   }
 
@@ -70,6 +76,7 @@ export class AuthService {
       );
     } finally {
       this.currentUser.set(null);
+      this.sessionRestored.set(false);
     }
   }
 

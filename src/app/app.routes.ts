@@ -19,6 +19,31 @@ export const routes: Routes = [
       ),
   },
 
+  {
+  path: 'author/dashboard',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/author-dashboard/author-dashboard.component').then(
+      (m) => m.AuthorDashboardComponent
+    ),
+},
+{
+  path: 'author/new',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/post-editor/post-editor.component').then(
+      (m) => m.PostEditorComponent
+    ),
+},
+{
+  path: 'author/edit',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/post-editor/post-editor.component').then(
+      (m) => m.PostEditorComponent
+    ),
+},
+
   // NEW: Author page (NO authorId in URL; uses router state)
   {
     path: 'author',

@@ -113,15 +113,18 @@ export class HomeComponent implements OnInit {
 
     this.loadingPosts = true;
     this.errorPosts = null;
+    this.cdr.detectChanges();
 
     this.postsApi.search(kw).subscribe({
       next: (posts) => {
         this.posts = posts;
         this.loadingPosts = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loadingPosts = false;
         this.errorPosts = this.getErr(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -137,15 +140,18 @@ export class HomeComponent implements OnInit {
 
     this.loadingPosts = true;
     this.errorPosts = null;
+    this.cdr.detectChanges();
 
     this.postsApi.getByCategory(this.selectedCategoryId).subscribe({
       next: (posts) => {
         this.posts = posts;
         this.loadingPosts = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loadingPosts = false;
         this.errorPosts = this.getErr(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -161,15 +167,18 @@ export class HomeComponent implements OnInit {
 
     this.loadingPosts = true;
     this.errorPosts = null;
+    this.cdr.detectChanges();
 
     this.postsApi.getByTag(this.selectedTagId).subscribe({
       next: (posts) => {
         this.posts = posts;
         this.loadingPosts = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loadingPosts = false;
         this.errorPosts = this.getErr(err);
+        this.cdr.detectChanges();
       },
     });
   }
