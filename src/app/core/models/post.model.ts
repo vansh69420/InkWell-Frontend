@@ -23,6 +23,7 @@ export interface PostDetail {
   readTimeMin: number;
   viewCount: number;
   likesCount: number;
+  isLikedByCurrentUser: boolean;
   createdAt: string;
   updatedAt?: string | null;
   publishedAt?: string | null;

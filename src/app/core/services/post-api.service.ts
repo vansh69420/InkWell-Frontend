@@ -73,4 +73,15 @@ delete(postId: string) {
       { withCredentials: true }
     );
   }
+  likePost(postId: string) {
+      return this.http.post<void>(
+        `${this.base}/posts/${postId}/like`, {}
+      );
+    }
+
+    unlikePost(postId: string) {
+      return this.http.post<void>(
+        `${this.base}/posts/${postId}/unlike`, {}
+      );
+    }
 }
