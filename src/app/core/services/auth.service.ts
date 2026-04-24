@@ -113,10 +113,10 @@ export class AuthService {
   }
 
   loginWithGoogle(): void {
-    window.location.href = `${this.baseUrl}/oauth/google`;
+    window.location.href = `http://localhost:5077/api/auth/oauth/google`;
   }
 
   loginWithGitHub(): void {
-    window.location.href = `${this.baseUrl}/oauth/github`;
-  }
+    window.location.href = `http://localhost:5077/api/auth/oauth/github`;
+}
 }
