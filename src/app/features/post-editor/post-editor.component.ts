@@ -16,16 +16,19 @@ import { FormsModule } from '@angular/forms';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Image from '@tiptap/extension-image';
 
 import { PostApiService } from '../../core/services/post-api.service';
 import { TaxonomyApiService } from '../../core/services/taxonomy-api.service';
+import { MediaPickerComponent } from '../../shared/media-picker/media-picker.component';
 import { Category, Tag } from '../../core/models/taxonomy.model';
 import { CreatePostRequest } from '../../core/models/post-write.model';
+import { MediaResponse } from '../../core/models/media.model';
 
 @Component({
   selector: 'app-post-editor',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, MediaPickerComponent],
   templateUrl: './post-editor.component.html',
 })
 export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -57,6 +60,9 @@ export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   categorySearch = '';
   tagSearch = '';
+
+  showFeaturedImagePicker = false;
+  showInsertImagePicker = false;
 
   private pendingInitialContent = '';
   private editorMounted = false;
@@ -174,6 +180,7 @@ export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       extensions: [
         StarterKit,
         Placeholder.configure({ placeholder: 'Write your post…' }),
+        Image.configure({ inline: false, allowBase64: false }),
       ],
       content: this.pendingInitialContent || '',
     });
@@ -227,6 +234,23 @@ export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isTagSelected(tagId: string): boolean {
     return this.selectedTagIds.includes(tagId);
+  }
+
+  // Featured Image Picker
+  onFeaturedImageSelected(media: MediaResponse): void {
+    this.featuredImageUrl = media.url;
+    this.showFeaturedImagePicker = false;
+    this.cdr.detectChanges();
+  }
+
+  // Insert Image into TipTap
+  onInsertImageSelected(media: MediaResponse): void {
+    this.editor?.chain().focus().setImage({
+      src: media.url,
+      alt: media.altText ?? media.originalName,
+    }).run();
+    this.showInsertImagePicker = false;
+    this.cdr.detectChanges();
   }
 
   saveDraft() {
@@ -309,7 +333,6 @@ export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   unpublish() {
     if (!this.postId) return;
-
     this.saving = true;
     this.cdr.detectChanges();
 
@@ -348,19 +371,8 @@ export class PostEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  toggleBold() {
-    this.editor?.chain().focus().toggleBold().run();
-  }
-
-  toggleItalic() {
-    this.editor?.chain().focus().toggleItalic().run();
-  }
-
-  toggleBullets() {
-    this.editor?.chain().focus().toggleBulletList().run();
-  }
-
-  toggleOrdered() {
-    this.editor?.chain().focus().toggleOrderedList().run();
-  }
+  toggleBold() { this.editor?.chain().focus().toggleBold().run(); }
+  toggleItalic() { this.editor?.chain().focus().toggleItalic().run(); }
+  toggleBullets() { this.editor?.chain().focus().toggleBulletList().run(); }
+  toggleOrdered() { this.editor?.chain().focus().toggleOrderedList().run(); }
 }

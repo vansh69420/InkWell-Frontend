@@ -1,0 +1,127 @@
+<div class="container">
+  <div class="card">
+    <h2 style="margin:0 0 16px;">My Media Library</h2>
+
+    <!-- Upload Section -->
+    <div style="margin-bottom:20px;padding:16px;border:var(--border);border-radius:10px;">
+      <label style="font-weight:600;display:block;margin-bottom:8px;">Upload File</label>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+          (change)="onFileSelected($event)"
+          style="color:var(--text);"
+        />
+        @if (selectedFile) {
+          <button
+            class="btn"
+            (click)="upload()"
+            [disabled]="uploading"
+          >
+            {{ uploading ? 'Uploading...' : 'Upload' }}
+          </button>
+        }
+      </div>
+      @if (uploadError) {
+        <div style="color:var(--danger);margin-top:6px;font-size:13px;">
+          {{ uploadError }}
+        </div>
+      }
+      <div class="muted" style="font-size:12px;margin-top:6px;">
+        Allowed: JPEG, PNG, GIF, WebP, PDF. Max 10MB.
+      </div>
+    </div>
+
+    <!-- Media Grid -->
+    @if (loading) {
+      <div class="muted">Loading media...</div>
+    }
+
+    @if (error) {
+      <div style="color:var(--danger);">{{ error }}</div>
+    }
+
+    @if (!loading && media.length === 0) {
+      <div class="muted">No media uploaded yet.</div>
+    }
+
+    @if (!loading && media.length > 0) {
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+        @for (item of media; track item.mediaId) {
+          <div style="border:var(--border);border-radius:10px;overflow:hidden;background:var(--panel);">
+
+            <!-- Preview -->
+            @if (isImage(item.mimeType)) {
+              <img
+                [src]="item.url"
+                [alt]="item.altText ?? item.originalName"
+                style="width:100%;height:140px;object-fit:cover;"
+              />
+            } @else {
+              <div style="width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:var(--card);">
+                <span style="font-size:40px;">📄</span>
+              </div>
+            }
+
+            <!-- Info -->
+            <div style="padding:10px;">
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                {{ item.originalName }}
+              </div>
+              <div class="muted" style="font-size:11px;margin-top:2px;">
+                {{ formatSize(item.sizeKb) }}
+              </div>
+
+              <!-- Alt Text -->
+              @if (editingAltTextId === item.mediaId) {
+                <div style="margin-top:8px;">
+                  <input
+                    class="input"
+                    [(ngModel)]="altTextValue"
+                    placeholder="Alt text..."
+                    style="font-size:12px;padding:6px 8px;"
+                  />
+                  <div style="display:flex;gap:4px;margin-top:4px;">
+                    <button class="btn" style="padding:3px 8px;font-size:11px;" (click)="saveAltText(item.mediaId)">Save</button>
+                    <button class="btn secondary" style="padding:3px 8px;font-size:11px;" (click)="cancelEditAltText()">Cancel</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="muted" style="font-size:11px;margin-top:4px;">
+                  {{ item.altText || 'No alt text' }}
+                </div>
+              }
+
+              <!-- Actions -->
+              <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+                <button
+                  class="btn secondary"
+                  style="padding:3px 8px;font-size:11px;"
+                  (click)="copyUrl(item.url)"
+                >
+                  Copy URL
+                </button>
+                <button
+                  class="btn secondary"
+                  style="padding:3px 8px;font-size:11px;"
+                  (click)="startEditAltText(item)"
+                >
+                  Alt Text
+                </button>
+                <button
+                  class="btn danger"
+                  style="padding:3px 8px;font-size:11px;"
+                  (click)="delete(item.mediaId)"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

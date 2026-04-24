@@ -27,14 +27,40 @@
 
       <!-- Featured Image -->
       <div>
-        <label style="font-weight:600;margin-bottom:4px;display:block;">Featured Image URL</label>
-        <input class="input" [(ngModel)]="featuredImageUrl" placeholder="https://example.com/image.jpg (optional)" />
+        <label style="font-weight:600;margin-bottom:4px;display:block;">Featured Image</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input
+            class="input"
+            [(ngModel)]="featuredImageUrl"
+            placeholder="https://example.com/image.jpg (optional)"
+            style="flex:1;"
+          />
+          <button
+            class="btn secondary"
+            style="white-space:nowrap;padding:10px 12px;"
+            (click)="showFeaturedImagePicker = true"
+          >
+            📁 Pick
+          </button>
+        </div>
+        @if (featuredImageUrl) {
+          <img
+            [src]="featuredImageUrl"
+            alt="Featured image preview"
+            style="margin-top:8px;max-height:120px;border-radius:8px;object-fit:cover;"
+          />
+        }
       </div>
 
       <!-- Excerpt -->
       <div>
         <label style="font-weight:600;margin-bottom:4px;display:block;">Excerpt</label>
-        <textarea class="input" rows="2" [(ngModel)]="excerpt" placeholder="Short summary of your post (optional)"></textarea>
+        <textarea
+          class="input"
+          rows="2"
+          [(ngModel)]="excerpt"
+          placeholder="Short summary of your post (optional)"
+        ></textarea>
       </div>
 
       <!-- Categories & Tags -->
@@ -43,42 +69,30 @@
         <!-- Categories -->
         <div>
           <label style="font-weight:600;margin-bottom:4px;display:block;">Categories</label>
-
-          <!-- Selected chips -->
           @if (getSelectedCategoryNames().length > 0) {
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
               @for (name of getSelectedCategoryNames(); track name) {
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;">
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;font-weight:500;">
                   {{ name }}
-                  <span
-                    (click)="removeCategory(getCategoryIdByName(name))"
-                    style="cursor:pointer;font-weight:bold;font-size:14px;line-height:1;"
-                  >&times;</span>
+                  <span (click)="removeCategory(getCategoryIdByName(name))" style="cursor:pointer;font-weight:bold;font-size:15px;line-height:1;opacity:0.8;">&times;</span>
                 </span>
               }
             </div>
           }
-
-          <input
-            class="input"
-            [(ngModel)]="categorySearch"
-            placeholder="Search categories..."
-            style="margin-bottom:6px;"
-          />
-          <div style="max-height:140px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:6px;">
+          <input class="input" [(ngModel)]="categorySearch" placeholder="Search categories..." style="margin-bottom:6px;" />
+          <div style="max-height:140px;overflow-y:auto;border:var(--border);border-radius:6px;padding:6px;background:var(--panel);">
             @if (filteredCategories.length === 0) {
               <div class="muted" style="font-size:13px;">No categories found.</div>
             }
             @for (c of filteredCategories; track c.categoryId) {
               <div
                 (click)="toggleCategory(c.categoryId)"
-                style="padding:4px 8px;cursor:pointer;border-radius:4px;font-size:14px;"
-                [style.background]="isCategorySelected(c.categoryId) ? 'var(--primary-light, #7513de)' : 'transparent'"
+                style="padding:5px 8px;cursor:pointer;border-radius:6px;font-size:14px;transition:background 0.15s;"
+                [style.background]="isCategorySelected(c.categoryId) ? 'rgba(124,92,255,0.25)' : 'transparent'"
+                [style.color]="isCategorySelected(c.categoryId) ? 'var(--primary-2)' : 'var(--text)'"
                 [style.font-weight]="isCategorySelected(c.categoryId) ? '600' : '400'"
               >
-                @if (isCategorySelected(c.categoryId)) {
-                  ✓
-                }
+                @if (isCategorySelected(c.categoryId)) { <span style="margin-right:4px;">✓</span> }
                 {{ c.name }}
               </div>
             }
@@ -88,42 +102,30 @@
         <!-- Tags -->
         <div>
           <label style="font-weight:600;margin-bottom:4px;display:block;">Tags</label>
-
-          <!-- Selected chips -->
           @if (getSelectedTagNames().length > 0) {
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
               @for (name of getSelectedTagNames(); track name) {
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;">
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;font-weight:500;">
                   {{ name }}
-                  <span
-                    (click)="removeTag(getTagIdByName(name))"
-                    style="cursor:pointer;font-weight:bold;font-size:14px;line-height:1;"
-                  >&times;</span>
+                  <span (click)="removeTag(getTagIdByName(name))" style="cursor:pointer;font-weight:bold;font-size:15px;line-height:1;opacity:0.8;">&times;</span>
                 </span>
               }
             </div>
           }
-
-          <input
-            class="input"
-            [(ngModel)]="tagSearch"
-            placeholder="Search tags..."
-            style="margin-bottom:6px;"
-          />
-          <div style="max-height:140px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:6px;">
+          <input class="input" [(ngModel)]="tagSearch" placeholder="Search tags..." style="margin-bottom:6px;" />
+          <div style="max-height:140px;overflow-y:auto;border:var(--border);border-radius:6px;padding:6px;background:var(--panel);">
             @if (filteredTags.length === 0) {
               <div class="muted" style="font-size:13px;">No tags found.</div>
             }
             @for (t of filteredTags; track t.tagId) {
               <div
                 (click)="toggleTag(t.tagId)"
-                style="padding:4px 8px;cursor:pointer;border-radius:4px;font-size:14px;"
-                [style.background]="isTagSelected(t.tagId) ? 'var(--primary-light, #7e15c9)' : 'transparent'"
+                style="padding:5px 8px;cursor:pointer;border-radius:6px;font-size:14px;transition:background 0.15s;"
+                [style.background]="isTagSelected(t.tagId) ? 'rgba(124,92,255,0.25)' : 'transparent'"
+                [style.color]="isTagSelected(t.tagId) ? 'var(--primary-2)' : 'var(--text)'"
                 [style.font-weight]="isTagSelected(t.tagId) ? '600' : '400'"
               >
-                @if (isTagSelected(t.tagId)) {
-                  ✓
-                }
+                @if (isTagSelected(t.tagId)) { <span style="margin-right:4px;">✓</span> }
                 {{ t.name }}
               </div>
             }
@@ -133,11 +135,18 @@
       </div>
 
       <!-- Editor Toolbar -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="btn secondary" (click)="toggleBold()">Bold</button>
         <button class="btn secondary" (click)="toggleItalic()">Italic</button>
         <button class="btn secondary" (click)="toggleBullets()">Bullets</button>
         <button class="btn secondary" (click)="toggleOrdered()">Numbered</button>
+        <button
+          class="btn secondary"
+          (click)="showInsertImagePicker = true"
+          style="display:flex;align-items:center;gap:4px;"
+        >
+          🖼 Insert Image
+        </button>
       </div>
 
       <!-- TipTap Editor -->
@@ -157,3 +166,17 @@
     </div>
   </div>
 </div>
+
+<!-- Featured Image Picker Modal -->
+<app-media-picker
+  [visible]="showFeaturedImagePicker"
+  (selected)="onFeaturedImageSelected($event)"
+  (closed)="showFeaturedImagePicker = false"
+/>
+
+<!-- Insert Image Picker Modal -->
+<app-media-picker
+  [visible]="showInsertImagePicker"
+  (selected)="onInsertImageSelected($event)"
+  (closed)="showInsertImagePicker = false"
+/>

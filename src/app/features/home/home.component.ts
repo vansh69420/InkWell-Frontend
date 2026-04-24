@@ -7,11 +7,12 @@ import { TaxonomyApiService } from '../../core/services/taxonomy-api.service';
 import { PostSummary } from '../../core/models/post.model';
 import { Category, Tag } from '../../core/models/taxonomy.model';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { NewsletterWidgetComponent } from '../newsletter/newsletter-widget.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NewsletterWidgetComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

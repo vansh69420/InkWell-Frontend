@@ -1,0 +1,42 @@
+<div style="padding:20px;border:var(--border);border-radius:12px;background:var(--panel);">
+  @if (success) {
+    <div style="text-align:center;">
+      <div style="font-size:32px;margin-bottom:8px;">📬</div>
+      <h3 style="margin:0 0 6px;">Check your inbox!</h3>
+      <p class="muted" style="font-size:14px;margin:0;">
+        We sent a confirmation email. Click the link to activate your subscription.
+      </p>
+    </div>
+  } @else {
+    <h3 style="margin:0 0 4px;">Stay in the loop</h3>
+    <p class="muted" style="font-size:13px;margin:0 0 14px;">
+      Get notified when new posts are published.
+    </p>
+
+    <div style="display:grid;gap:8px;">
+      <input
+        class="input"
+        [(ngModel)]="fullName"
+        placeholder="Your name (optional)"
+      />
+      <input
+        class="input"
+        [(ngModel)]="email"
+        placeholder="Your email address"
+        type="email"
+      />
+
+      @if (error) {
+        <div style="color:var(--danger);font-size:13px;">{{ error }}</div>
+      }
+
+      <button
+        class="btn"
+        (click)="submit()"
+        [disabled]="loading || !email.trim()"
+      >
+        {{ loading ? 'Subscribing...' : 'Subscribe' }}
+      </button>
+    </div>
+  }
+</div>
