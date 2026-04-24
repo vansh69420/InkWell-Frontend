@@ -1,20 +1,276 @@
 <div class="container">
-  <a routerLink="/home">← Back to feed</a>
+  <a routerLink="/home" style="display:inline-block;margin-bottom:16px;color:var(--muted);">← Back to feed</a>
 
-  <div *ngIf="loading" class="info">Loading post...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  @if (loading) {
+    <div class="muted">Loading post...</div>
+  }
 
-  <ng-container *ngIf="!loading && post">
-    <h2 class="title">{{ post.title }}</h2>
+  @if (error) {
+    <div style="color:var(--danger);">{{ error }}</div>
+  }
 
-    <div class="meta">
-      <span>Read: {{ post.readTimeMin }} min</span>
-      <span>Views: {{ post.viewCount }}</span>
-      <span>Likes: {{ post.likesCount }}</span>
+  @if (!loading && post) {
+
+    <!-- Post Header -->
+    <div class="card" style="margin-bottom:16px;">
+      @if (post.featuredImageUrl) {
+        <img
+          [src]="post.featuredImageUrl"
+          [alt]="post.title"
+          style="width:100%;max-height:360px;object-fit:cover;border-radius:10px;margin-bottom:16px;"
+        />
+      }
+
+      <h1 style="margin:0 0 10px;">{{ post.title }}</h1>
+
+      @if (post.excerpt) {
+        <p style="color:var(--muted);font-size:15px;margin:0 0 12px;">{{ post.excerpt }}</p>
+      }
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-bottom:16px;">
+        <span>📖 {{ post.readTimeMin }} min read</span>
+        <span>👁 {{ post.viewCount }} views</span>
+        <span>📅 {{ formatDate(post.createdAt) }}</span>
+      </div>
+
+      <!-- Like Button -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        @if (authService.isAuthenticated()) {
+          <button
+            class="btn secondary"
+            (click)="toggleLike()"
+            [disabled]="likeLoading"
+            style="display:flex;align-items:center;gap:6px;"
+          >
+            {{ post.isLikedByCurrentUser ? '❤️' : '🤍' }}
+            {{ post.likesCount }}
+          </button>
+        } @else {
+          <span style="color:var(--muted);font-size:14px;">
+            ❤️ {{ post.likesCount }} likes
+          </span>
+        }
+
+        <button
+          class="btn secondary"
+          (click)="toggleComments()"
+          style="display:flex;align-items:center;gap:6px;"
+        >
+          💬 {{ commentCount }} comments
+        </button>
+      </div>
     </div>
 
-    <div class="excerpt" *ngIf="post.excerpt">{{ post.excerpt }}</div>
+    <!-- Post Content -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="content" [innerHTML]="sanitizedContent"></div>
+    </div>
 
-    <div class="content" [innerHTML]="sanitizedContent"></div>
-  </ng-container>
+    <!-- Comments Section -->
+    @if (showComments) {
+      <div class="card">
+        <h3 style="margin:0 0 16px;">Comments</h3>
+
+        <!-- Add Comment -->
+        @if (authService.isAuthenticated()) {
+          <div style="margin-bottom:20px;">
+            <textarea
+              class="input"
+              rows="3"
+              [(ngModel)]="newCommentContent"
+              placeholder="Write a comment..."
+              style="margin-bottom:8px;"
+            ></textarea>
+
+            @if (addCommentError) {
+              <div style="color:var(--danger);font-size:13px;margin-bottom:6px;">
+                {{ addCommentError }}
+              </div>
+            }
+
+            <button
+              class="btn"
+              (click)="submitComment()"
+              [disabled]="addingComment || !newCommentContent.trim()"
+            >
+              {{ addingComment ? 'Posting...' : 'Post Comment' }}
+            </button>
+          </div>
+        } @else {
+          <div class="muted" style="margin-bottom:16px;font-size:14px;">
+            <a routerLink="/login" style="color:var(--primary);">Login</a> to leave a comment.
+          </div>
+        }
+
+        <!-- Comments List -->
+        @if (commentsLoading) {
+          <div class="muted">Loading comments...</div>
+        }
+
+        @if (commentsError) {
+          <div style="color:var(--danger);">{{ commentsError }}</div>
+        }
+
+        @if (!commentsLoading && comments.length === 0) {
+          <div class="muted">No comments yet. Be the first!</div>
+        }
+
+        @for (comment of comments; track comment.commentId) {
+          <div style="border-top:var(--border);padding-top:14px;margin-top:14px;">
+
+            <!-- Comment Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+              <div>
+                <span style="font-weight:600;font-size:14px;">
+                  {{ comment.authorFullName }}
+                </span>
+                <span class="muted" style="font-size:12px;margin-left:8px;">
+                  {{ formatDate(comment.createdAt) }}
+                </span>
+              </div>
+
+              @if (isOwnComment(comment)) {
+                <div style="display:flex;gap:6px;">
+                  <button class="btn secondary" style="padding:4px 8px;font-size:12px;" (click)="startEdit(comment)">Edit</button>
+                  <button class="btn danger" style="padding:4px 8px;font-size:12px;" (click)="deleteComment(comment.commentId)">Delete</button>
+                </div>
+              }
+            </div>
+
+            <!-- Comment Content or Edit Form -->
+            @if (editingCommentId === comment.commentId) {
+              <div style="margin-top:8px;">
+                <textarea
+                  class="input"
+                  rows="2"
+                  [(ngModel)]="editContent"
+                  style="margin-bottom:6px;"
+                ></textarea>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn" style="padding:4px 10px;font-size:13px;" (click)="saveEdit(comment.commentId)" [disabled]="savingEdit">Save</button>
+                  <button class="btn secondary" style="padding:4px 10px;font-size:13px;" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </div>
+            } @else {
+              <p style="margin:6px 0;font-size:14px;">{{ comment.content }}</p>
+            }
+
+            <!-- Comment Actions -->
+            <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+              @if (authService.isAuthenticated()) {
+                <button
+                  class="btn secondary"
+                  style="padding:2px 8px;font-size:12px;"
+                  (click)="toggleCommentLike(comment)"
+                >
+                  {{ comment.isLikedByCurrentUser ? '❤️' : '🤍' }} {{ comment.likesCount }}
+                </button>
+              } @else {
+                <span class="muted" style="font-size:12px;">❤️ {{ comment.likesCount }}</span>
+              }
+
+              @if (authService.isAuthenticated()) {
+                <button
+                  class="btn secondary"
+                  style="padding:2px 8px;font-size:12px;"
+                  (click)="startReply(comment.commentId)"
+                >
+                  Reply
+                </button>
+              }
+            </div>
+
+            <!-- Reply Form -->
+            @if (replyingToId === comment.commentId) {
+              <div style="margin-top:10px;padding-left:16px;border-left:2px solid var(--primary);">
+                <textarea
+                  class="input"
+                  rows="2"
+                  [(ngModel)]="replyContent"
+                  placeholder="Write a reply..."
+                  style="margin-bottom:6px;"
+                ></textarea>
+                <div style="display:flex;gap:6px;">
+                  <button
+                    class="btn"
+                    style="padding:4px 10px;font-size:13px;"
+                    (click)="submitReply(comment.commentId)"
+                    [disabled]="addingReply || !replyContent.trim()"
+                  >
+                    {{ addingReply ? 'Replying...' : 'Reply' }}
+                  </button>
+                  <button
+                    class="btn secondary"
+                    style="padding:4px 10px;font-size:13px;"
+                    (click)="cancelReply()"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Replies -->
+            @if (comment.replies.length > 0) {
+              <div style="margin-top:12px;padding-left:16px;border-left:2px solid rgba(124,92,255,0.3);">
+                @for (reply of comment.replies; track reply.commentId) {
+                  <div style="padding:10px 0;border-top:var(--border);">
+
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                      <div>
+                        <span style="font-weight:600;font-size:13px;">{{ reply.authorFullName }}</span>
+                        <span class="muted" style="font-size:12px;margin-left:8px;">{{ formatDate(reply.createdAt) }}</span>
+                      </div>
+
+                      @if (isOwnComment(reply)) {
+                        <div style="display:flex;gap:6px;">
+                          <button class="btn secondary" style="padding:3px 7px;font-size:11px;" (click)="startEdit(reply)">Edit</button>
+                          <button class="btn danger" style="padding:3px 7px;font-size:11px;" (click)="deleteComment(reply.commentId)">Delete</button>
+                        </div>
+                      }
+                    </div>
+
+                    @if (editingCommentId === reply.commentId) {
+                      <div style="margin-top:6px;">
+                        <textarea
+                          class="input"
+                          rows="2"
+                          [(ngModel)]="editContent"
+                          style="margin-bottom:6px;"
+                        ></textarea>
+                        <div style="display:flex;gap:6px;">
+                          <button class="btn" style="padding:3px 8px;font-size:12px;" (click)="saveEdit(reply.commentId)" [disabled]="savingEdit">Save</button>
+                          <button class="btn secondary" style="padding:3px 8px;font-size:12px;" (click)="cancelEdit()">Cancel</button>
+                        </div>
+                      </div>
+                    } @else {
+                      <p style="margin:4px 0;font-size:13px;">{{ reply.content }}</p>
+                    }
+
+                    <div style="margin-top:4px;">
+                      @if (authService.isAuthenticated()) {
+                        <button
+                          class="btn secondary"
+                          style="padding:2px 6px;font-size:11px;"
+                          (click)="toggleCommentLike(reply)"
+                        >
+                          {{ reply.isLikedByCurrentUser ? '❤️' : '🤍' }} {{ reply.likesCount }}
+                        </button>
+                      } @else {
+                        <span class="muted" style="font-size:11px;">❤️ {{ reply.likesCount }}</span>
+                      }
+                    </div>
+
+                  </div>
+                }
+              </div>
+            }
+
+          </div>
+        }
+
+      </div>
+    }
+
+  }
 </div>
