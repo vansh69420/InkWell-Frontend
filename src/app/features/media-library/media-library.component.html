@@ -1,127 +1,153 @@
 <div class="container">
-  <div class="card">
-    <h2 style="margin:0 0 16px;">My Media Library</h2>
 
-    <!-- Upload Section -->
-    <div style="margin-bottom:20px;padding:16px;border:var(--border);border-radius:10px;">
-      <label style="font-weight:600;display:block;margin-bottom:8px;">Upload File</label>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+  <!-- Header -->
+  <div style="margin-bottom: 28px;">
+    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px;">
+      📁 Media Library
+    </h1>
+    <p class="text-secondary text-sm">Upload and manage your images and files</p>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="card" style="margin-bottom: 24px; padding: 24px;">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div style="
+        flex: 1;
+        min-width: 200px;
+        padding: 24px;
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        text-align: center;
+        transition: border-color 0.2s;
+        position: relative;
+      ">
+        <div style="font-size: 32px; margin-bottom: 8px;">📤</div>
+        <p class="text-sm text-secondary">Drop files here or click to browse</p>
+        <p class="text-xs text-muted mt-1">JPEG, PNG, GIF, WebP, PDF • Max 10MB</p>
         <input
           type="file"
           accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
           (change)="onFileSelected($event)"
-          style="color:var(--text);"
+          style="position: absolute; inset: 0; opacity: 0; cursor: pointer;"
         />
-        @if (selectedFile) {
+      </div>
+
+      @if (selectedFile) {
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <span class="text-sm font-medium">{{ selectedFile.name }}</span>
           <button
-            class="btn"
+            class="btn-gradient btn-sm"
+            style="border-radius: 10px;"
             (click)="upload()"
             [disabled]="uploading"
           >
-            {{ uploading ? 'Uploading...' : 'Upload' }}
+            {{ uploading ? 'Uploading...' : '⬆️ Upload' }}
           </button>
-        }
-      </div>
-      @if (uploadError) {
-        <div style="color:var(--danger);margin-top:6px;font-size:13px;">
-          {{ uploadError }}
         </div>
       }
-      <div class="muted" style="font-size:12px;margin-top:6px;">
-        Allowed: JPEG, PNG, GIF, WebP, PDF. Max 10MB.
-      </div>
     </div>
 
-    <!-- Media Grid -->
-    @if (loading) {
-      <div class="muted">Loading media...</div>
+    @if (uploadError) {
+      <div style="background: var(--danger-light); color: var(--danger); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
+        {{ uploadError }}
+      </div>
     }
+  </div>
 
-    @if (error) {
-      <div style="color:var(--danger);">{{ error }}</div>
-    }
+  <!-- Loading -->
+  @if (loading) {
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="skeleton" style="height: 140px;"></div>
+          <div style="padding: 12px;">
+            <div class="skeleton" style="height: 14px; width: 80%; margin-bottom: 6px;"></div>
+            <div class="skeleton" style="height: 12px; width: 50%;"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 
-    @if (!loading && media.length === 0) {
-      <div class="muted">No media uploaded yet.</div>
-    }
+  @if (error) {
+    <div class="card" style="text-align: center; padding: 40px;">
+      <p class="text-danger">{{ error }}</p>
+    </div>
+  }
 
-    @if (!loading && media.length > 0) {
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-        @for (item of media; track item.mediaId) {
-          <div style="border:var(--border);border-radius:10px;overflow:hidden;background:var(--panel);">
+  @if (!loading && media.length === 0) {
+    <div class="card" style="text-align: center; padding: 60px;">
+      <div style="font-size: 56px; margin-bottom: 16px;">🖼️</div>
+      <h3 style="margin-bottom: 8px;">No media yet</h3>
+      <p class="text-muted">Upload your first image to get started.</p>
+    </div>
+  }
 
-            <!-- Preview -->
-            @if (isImage(item.mimeType)) {
-              <img
-                [src]="item.url"
-                [alt]="item.altText ?? item.originalName"
-                style="width:100%;height:140px;object-fit:cover;"
-              />
+  <!-- Media Grid -->
+  @if (!loading && media.length > 0) {
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
+      @for (item of media; track item.mediaId) {
+        <div class="card card-hover" style="padding: 0; overflow: hidden;">
+
+          @if (isImage(item.mimeType)) {
+            <img
+              [src]="item.url"
+              [alt]="item.altText ?? item.originalName"
+              style="width: 100%; height: 160px; object-fit: cover;"
+            />
+          } @else {
+            <div style="
+              height: 160px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: var(--bg-secondary);
+            ">
+              <span style="font-size: 48px;">📄</span>
+            </div>
+          }
+
+          <div style="padding: 14px;">
+            <div class="font-semibold text-sm" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ item.originalName }}
+            </div>
+            <div class="text-muted text-xs mt-1">{{ formatSize(item.sizeKb) }}</div>
+
+            @if (editingAltTextId === item.mediaId) {
+              <div style="margin-top: 10px;">
+                <input
+                  class="input"
+                  [(ngModel)]="altTextValue"
+                  placeholder="Alt text..."
+                  style="font-size: 12px; padding: 6px 10px; margin-bottom: 6px;"
+                />
+                <div style="display: flex; gap: 4px;">
+                  <button class="btn-primary btn-xs" style="border-radius: 6px;" (click)="saveAltText(item.mediaId)">Save</button>
+                  <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="cancelEditAltText()">Cancel</button>
+                </div>
+              </div>
             } @else {
-              <div style="width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:var(--card);">
-                <span style="font-size:40px;">📄</span>
+              <div class="text-muted text-xs mt-1" style="font-style: italic;">
+                {{ item.altText || 'No alt text' }}
               </div>
             }
 
-            <!-- Info -->
-            <div style="padding:10px;">
-              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                {{ item.originalName }}
-              </div>
-              <div class="muted" style="font-size:11px;margin-top:2px;">
-                {{ formatSize(item.sizeKb) }}
-              </div>
-
-              <!-- Alt Text -->
-              @if (editingAltTextId === item.mediaId) {
-                <div style="margin-top:8px;">
-                  <input
-                    class="input"
-                    [(ngModel)]="altTextValue"
-                    placeholder="Alt text..."
-                    style="font-size:12px;padding:6px 8px;"
-                  />
-                  <div style="display:flex;gap:4px;margin-top:4px;">
-                    <button class="btn" style="padding:3px 8px;font-size:11px;" (click)="saveAltText(item.mediaId)">Save</button>
-                    <button class="btn secondary" style="padding:3px 8px;font-size:11px;" (click)="cancelEditAltText()">Cancel</button>
-                  </div>
-                </div>
-              } @else {
-                <div class="muted" style="font-size:11px;margin-top:4px;">
-                  {{ item.altText || 'No alt text' }}
-                </div>
-              }
-
-              <!-- Actions -->
-              <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-                <button
-                  class="btn secondary"
-                  style="padding:3px 8px;font-size:11px;"
-                  (click)="copyUrl(item.url)"
-                >
-                  Copy URL
-                </button>
-                <button
-                  class="btn secondary"
-                  style="padding:3px 8px;font-size:11px;"
-                  (click)="startEditAltText(item)"
-                >
-                  Alt Text
-                </button>
-                <button
-                  class="btn danger"
-                  style="padding:3px 8px;font-size:11px;"
-                  (click)="delete(item.mediaId)"
-                >
-                  Delete
-                </button>
-              </div>
+            <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;">
+              <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="copyUrl(item.url)">
+                📋 Copy URL
+              </button>
+              <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="startEditAltText(item)">
+                ✏️ Alt
+              </button>
+              <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px; border: var(--border);" (click)="delete(item.mediaId)">
+                🗑️ Delete
+              </button>
             </div>
-
           </div>
-        }
-      </div>
-    }
 
-  </div>
+        </div>
+      }
+    </div>
+  }
+
 </div>

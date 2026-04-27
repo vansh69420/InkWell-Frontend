@@ -102,6 +102,14 @@ export const routes: Routes = [
         (m) => m.NewsletterUnsubscribedComponent
       ),
   },
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-dashboard.component').then(
+        (m) => m.AdminDashboardComponent
+      ),
+  },
 
   { path: '**', redirectTo: 'home' },
 ];

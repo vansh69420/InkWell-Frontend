@@ -10,6 +10,7 @@ export interface PostSummary {
   likesCount: number;
   createdAt: string;
   publishedAt?: string | null;
+  isFeatured?: boolean;
 }
 
 export interface PostDetail {
@@ -29,6 +30,7 @@ export interface PostDetail {
   publishedAt?: string | null;
   categoryIds: string[];
   tagIds: string[];
+
 }
 
 export interface AuthorPostsResponse {

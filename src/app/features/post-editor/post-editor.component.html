@@ -1,180 +1,279 @@
-<div class="container">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-      <h2 style="margin:0;">{{ isEdit ? 'Edit Post' : 'New Post' }}</h2>
-      <button class="btn secondary" (click)="back()">Back</button>
+<div class="container-md" style="padding-top: 20px;">
+
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+      <h1 style="font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">
+        {{ isEdit ? '✏️ Edit Post' : '✍️ New Post' }}
+      </h1>
+      <p class="text-secondary text-sm">{{ isEdit ? 'Update your article' : 'Create a new article' }}</p>
+    </div>
+    <button class="btn-ghost btn-sm" style="border-radius: 10px; border: var(--border);" (click)="back()">
+      ← Back
+    </button>
+  </div>
+
+  @if (formLoading) {
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div class="skeleton" style="height: 20px; width: 40%; margin: 0 auto 12px;"></div>
+      <div class="skeleton" style="height: 14px; width: 60%; margin: 0 auto;"></div>
+    </div>
+  }
+
+  @if (error) {
+    <div style="background: var(--danger-light); color: var(--danger); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px;">
+      {{ error }}
+    </div>
+  }
+
+  @if (saving) {
+    <div style="background: var(--primary-light); color: var(--primary-text); padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 13px;">
+      Saving...
+    </div>
+  }
+
+  <div [style.display]="formLoading ? 'none' : 'grid'" style="gap: 20px;">
+
+    <!-- Title -->
+    <div class="card" style="padding: 24px;">
+      <label class="label">Title</label>
+      <input
+        class="input"
+        [(ngModel)]="title"
+        placeholder="Enter an engaging title..."
+        style="font-size: 18px; font-weight: 600; border-radius: 10px;"
+      />
     </div>
 
-    @if (formLoading) {
-      <div class="muted" style="margin-top:10px;">Loading...</div>
-    }
-
-    @if (error) {
-      <div style="margin-top:10px;color:var(--danger);">{{ error }}</div>
-    }
-
-    @if (saving) {
-      <div class="muted" style="margin-top:10px;">Saving...</div>
-    }
-
-    <div [style.display]="formLoading ? 'none' : 'grid'" style="gap:14px;margin-top:12px;">
-
-      <!-- Title -->
-      <div>
-        <label style="font-weight:600;margin-bottom:4px;display:block;">Title</label>
-        <input class="input" [(ngModel)]="title" placeholder="Enter post title" />
-      </div>
-
-      <!-- Featured Image -->
-      <div>
-        <label style="font-weight:600;margin-bottom:4px;display:block;">Featured Image</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input
-            class="input"
-            [(ngModel)]="featuredImageUrl"
-            placeholder="https://example.com/image.jpg (optional)"
-            style="flex:1;"
-          />
-          <button
-            class="btn secondary"
-            style="white-space:nowrap;padding:10px 12px;"
-            (click)="showFeaturedImagePicker = true"
-          >
-            📁 Pick
-          </button>
-        </div>
-        @if (featuredImageUrl) {
-          <img
-            [src]="featuredImageUrl"
-            alt="Featured image preview"
-            style="margin-top:8px;max-height:120px;border-radius:8px;object-fit:cover;"
-          />
-        }
-      </div>
-
-      <!-- Excerpt -->
-      <div>
-        <label style="font-weight:600;margin-bottom:4px;display:block;">Excerpt</label>
-        <textarea
+    <!-- Featured Image -->
+    <div class="card" style="padding: 24px;">
+      <label class="label">Featured Image</label>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input
           class="input"
-          rows="2"
-          [(ngModel)]="excerpt"
-          placeholder="Short summary of your post (optional)"
-        ></textarea>
-      </div>
-
-      <!-- Categories & Tags -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-
-        <!-- Categories -->
-        <div>
-          <label style="font-weight:600;margin-bottom:4px;display:block;">Categories</label>
-          @if (getSelectedCategoryNames().length > 0) {
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
-              @for (name of getSelectedCategoryNames(); track name) {
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;font-weight:500;">
-                  {{ name }}
-                  <span (click)="removeCategory(getCategoryIdByName(name))" style="cursor:pointer;font-weight:bold;font-size:15px;line-height:1;opacity:0.8;">&times;</span>
-                </span>
-              }
-            </div>
-          }
-          <input class="input" [(ngModel)]="categorySearch" placeholder="Search categories..." style="margin-bottom:6px;" />
-          <div style="max-height:140px;overflow-y:auto;border:var(--border);border-radius:6px;padding:6px;background:var(--panel);">
-            @if (filteredCategories.length === 0) {
-              <div class="muted" style="font-size:13px;">No categories found.</div>
-            }
-            @for (c of filteredCategories; track c.categoryId) {
-              <div
-                (click)="toggleCategory(c.categoryId)"
-                style="padding:5px 8px;cursor:pointer;border-radius:6px;font-size:14px;transition:background 0.15s;"
-                [style.background]="isCategorySelected(c.categoryId) ? 'rgba(124,92,255,0.25)' : 'transparent'"
-                [style.color]="isCategorySelected(c.categoryId) ? 'var(--primary-2)' : 'var(--text)'"
-                [style.font-weight]="isCategorySelected(c.categoryId) ? '600' : '400'"
-              >
-                @if (isCategorySelected(c.categoryId)) { <span style="margin-right:4px;">✓</span> }
-                {{ c.name }}
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Tags -->
-        <div>
-          <label style="font-weight:600;margin-bottom:4px;display:block;">Tags</label>
-          @if (getSelectedTagNames().length > 0) {
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
-              @for (name of getSelectedTagNames(); track name) {
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--primary);color:white;border-radius:12px;font-size:13px;font-weight:500;">
-                  {{ name }}
-                  <span (click)="removeTag(getTagIdByName(name))" style="cursor:pointer;font-weight:bold;font-size:15px;line-height:1;opacity:0.8;">&times;</span>
-                </span>
-              }
-            </div>
-          }
-          <input class="input" [(ngModel)]="tagSearch" placeholder="Search tags..." style="margin-bottom:6px;" />
-          <div style="max-height:140px;overflow-y:auto;border:var(--border);border-radius:6px;padding:6px;background:var(--panel);">
-            @if (filteredTags.length === 0) {
-              <div class="muted" style="font-size:13px;">No tags found.</div>
-            }
-            @for (t of filteredTags; track t.tagId) {
-              <div
-                (click)="toggleTag(t.tagId)"
-                style="padding:5px 8px;cursor:pointer;border-radius:6px;font-size:14px;transition:background 0.15s;"
-                [style.background]="isTagSelected(t.tagId) ? 'rgba(124,92,255,0.25)' : 'transparent'"
-                [style.color]="isTagSelected(t.tagId) ? 'var(--primary-2)' : 'var(--text)'"
-                [style.font-weight]="isTagSelected(t.tagId) ? '600' : '400'"
-              >
-                @if (isTagSelected(t.tagId)) { <span style="margin-right:4px;">✓</span> }
-                {{ t.name }}
-              </div>
-            }
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Editor Toolbar -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button class="btn secondary" (click)="toggleBold()">Bold</button>
-        <button class="btn secondary" (click)="toggleItalic()">Italic</button>
-        <button class="btn secondary" (click)="toggleBullets()">Bullets</button>
-        <button class="btn secondary" (click)="toggleOrdered()">Numbered</button>
+          [(ngModel)]="featuredImageUrl"
+          placeholder="https://example.com/image.jpg"
+          style="flex: 1; border-radius: 10px;"
+        />
         <button
-          class="btn secondary"
-          (click)="showInsertImagePicker = true"
-          style="display:flex;align-items:center;gap:4px;"
+          class="btn-secondary btn-sm"
+          style="white-space: nowrap; border-radius: 10px;"
+          (click)="showFeaturedImagePicker = true"
         >
-          🖼 Insert Image
+          📁 Browse
+        </button>
+      </div>
+      @if (featuredImageUrl) {
+        <img
+          [src]="featuredImageUrl"
+          alt="Featured preview"
+          style="margin-top: 12px; max-height: 160px; width: 100%; object-fit: cover; border-radius: 10px;"
+        />
+      }
+    </div>
+
+    <!-- Excerpt -->
+    <div class="card" style="padding: 24px;">
+      <label class="label">Excerpt <span class="text-muted text-xs">(optional)</span></label>
+      <textarea
+        class="input"
+        rows="2"
+        [(ngModel)]="excerpt"
+        placeholder="A short summary of your post..."
+        style="border-radius: 10px;"
+      ></textarea>
+    </div>
+
+    <!-- Categories & Tags -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+      <!-- Categories -->
+      <div class="card" style="padding: 20px;">
+        <label class="label">Categories</label>
+
+        @if (getSelectedCategoryNames().length > 0) {
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+            @for (name of getSelectedCategoryNames(); track name) {
+              <span class="chip">
+                {{ name }}
+                <span class="chip-remove" (click)="removeCategory(getCategoryIdByName(name))">&times;</span>
+              </span>
+            }
+          </div>
+        }
+
+        <input
+          class="input"
+          [(ngModel)]="categorySearch"
+          placeholder="Search categories..."
+          style="margin-bottom: 8px; border-radius: 8px; font-size: 13px;"
+        />
+
+        <div style="max-height: 160px; overflow-y: auto; border: var(--border); border-radius: 8px; background: var(--bg-secondary);">
+          @if (filteredCategories.length === 0) {
+            <div class="text-muted text-sm" style="padding: 12px;">No categories found.</div>
+          }
+          @for (c of filteredCategories; track c.categoryId) {
+            <div
+              (click)="toggleCategory(c.categoryId)"
+              style="
+                padding: 8px 12px;
+                cursor: pointer;
+                font-size: 13px;
+                transition: background 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+              [style.background]="isCategorySelected(c.categoryId) ? 'var(--primary-light)' : 'transparent'"
+              [style.color]="isCategorySelected(c.categoryId) ? 'var(--primary-text)' : 'var(--text)'"
+              [style.font-weight]="isCategorySelected(c.categoryId) ? '600' : '400'"
+            >
+              @if (isCategorySelected(c.categoryId)) {
+                <span style="color: var(--primary);">✓</span>
+              }
+              {{ c.name }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="card" style="padding: 20px;">
+        <label class="label">Tags</label>
+
+        @if (getSelectedTagNames().length > 0) {
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+            @for (name of getSelectedTagNames(); track name) {
+              <span class="chip">
+                {{ name }}
+                <span class="chip-remove" (click)="removeTag(getTagIdByName(name))">&times;</span>
+              </span>
+            }
+          </div>
+        }
+
+        <input
+          class="input"
+          [(ngModel)]="tagSearch"
+          placeholder="Search tags..."
+          style="margin-bottom: 8px; border-radius: 8px; font-size: 13px;"
+        />
+
+        <div style="max-height: 160px; overflow-y: auto; border: var(--border); border-radius: 8px; background: var(--bg-secondary);">
+          @if (filteredTags.length === 0) {
+            <div class="text-muted text-sm" style="padding: 12px;">No tags found.</div>
+          }
+          @for (t of filteredTags; track t.tagId) {
+            <div
+              (click)="toggleTag(t.tagId)"
+              style="
+                padding: 8px 12px;
+                cursor: pointer;
+                font-size: 13px;
+                transition: background 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+              [style.background]="isTagSelected(t.tagId) ? 'var(--primary-light)' : 'transparent'"
+              [style.color]="isTagSelected(t.tagId) ? 'var(--primary-text)' : 'var(--text)'"
+              [style.font-weight]="isTagSelected(t.tagId) ? '600' : '400'"
+            >
+              @if (isTagSelected(t.tagId)) {
+                <span style="color: var(--primary);">✓</span>
+              }
+              {{ t.name }}
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Editor -->
+    <div class="card" style="padding: 24px;">
+      <label class="label" style="margin-bottom: 12px;">Content</label>
+
+      <!-- Toolbar -->
+      <div style="
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 10px 12px;
+        background: var(--bg-secondary);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        border: var(--border);
+      ">
+        <button class="btn-ghost btn-xs" style="border-radius: 6px; font-weight: 700;" (click)="toggleBold()">B</button>
+        <button class="btn-ghost btn-xs" style="border-radius: 6px; font-style: italic;" (click)="toggleItalic()">I</button>
+        <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="toggleBullets()">• List</button>
+        <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="toggleOrdered()">1. List</button>
+        <div style="width: 1px; background: var(--border-color); margin: 0 4px;"></div>
+        <button
+          class="btn-ghost btn-xs"
+          style="border-radius: 6px;"
+          (click)="showInsertImagePicker = true"
+        >
+          🖼️ Image
         </button>
       </div>
 
-      <!-- TipTap Editor -->
       <div #editorHost class="tiptap"></div>
+    </div>
 
-      <!-- Action Buttons -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
-        <button class="btn secondary" (click)="saveDraft()" [disabled]="saving">Save Draft</button>
-        <button class="btn" (click)="publish()" [disabled]="saving">Publish</button>
-
+    <!-- Action Buttons -->
+    <div class="card" style="padding: 20px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+        <button
+          class="btn-secondary btn-sm"
+          style="border-radius: 10px;"
+          (click)="saveDraft()"
+          [disabled]="saving"
+        >
+          💾 Save Draft
+        </button>
+        <button
+          class="btn-gradient btn-sm"
+          style="border-radius: 10px;"
+          (click)="publish()"
+          [disabled]="saving"
+        >
+          🚀 Publish
+        </button>
         @if (isEdit) {
-          <button class="btn secondary" (click)="unpublish()" [disabled]="saving">Unpublish</button>
-          <button class="btn danger" (click)="delete()" [disabled]="saving">Delete</button>
+          <button
+            class="btn-secondary btn-sm"
+            style="border-radius: 10px;"
+            (click)="unpublish()"
+            [disabled]="saving"
+          >
+            📤 Unpublish
+          </button>
+          <button
+            class="btn-ghost btn-xs text-danger"
+            style="border-radius: 10px; border: var(--border);"
+            (click)="delete()"
+            [disabled]="saving"
+          >
+            🗑️ Delete
+          </button>
         }
       </div>
-
     </div>
+
   </div>
 </div>
 
-<!-- Featured Image Picker Modal -->
+<!-- Featured Image Picker -->
 <app-media-picker
   [visible]="showFeaturedImagePicker"
   (selected)="onFeaturedImageSelected($event)"
   (closed)="showFeaturedImagePicker = false"
 />
 
-<!-- Insert Image Picker Modal -->
+<!-- Insert Image Picker -->
 <app-media-picker
   [visible]="showInsertImagePicker"
   (selected)="onInsertImageSelected($event)"

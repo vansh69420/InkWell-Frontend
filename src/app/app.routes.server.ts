@@ -15,6 +15,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'media-library', renderMode: RenderMode.Client },
   { path: 'newsletter/confirmed', renderMode: RenderMode.Prerender },
   { path: 'newsletter/unsubscribed', renderMode: RenderMode.Prerender },
+  { path: 'admin', renderMode: RenderMode.Client },
 
   { path: '**', renderMode: RenderMode.Server },
 ];

@@ -1,0 +1,332 @@
+<div class="container">
+
+  <!-- Header -->
+  <div style="margin-bottom: 28px;">
+    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px;">
+      ⚙️ Admin Panel
+    </h1>
+    <p class="text-secondary text-sm">Manage your platform</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    @for (tab of [
+      {key:'analytics', label:'📊 Analytics'},
+      {key:'users', label:'👥 Users'},
+      {key:'posts', label:'📝 Posts'},
+      {key:'taxonomy', label:'🏷️ Taxonomy'},
+      {key:'newsletter', label:'📧 Newsletter'},
+      {key:'audit', label:'📋 Audit Logs'}
+    ]; track tab.key) {
+      <button
+        class="tab"
+        [class.active]="activeTab === tab.key"
+        (click)="setTab($any(tab.key))"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Analytics -->
+  @if (activeTab === 'analytics') {
+    @if (analyticsLoading) {
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="stat-card">
+            <div class="skeleton" style="height: 40px; width: 60px; margin: 0 auto 8px;"></div>
+            <div class="skeleton" style="height: 14px; width: 80%; margin: 0 auto;"></div>
+          </div>
+        }
+      </div>
+    }
+    @if (analytics) {
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+        <div class="stat-card">
+          <div class="stat-value">{{ analytics.totalUsers }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ analytics.totalPosts }}</div>
+          <div class="stat-label">Published Posts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ analytics.totalComments }}</div>
+          <div class="stat-label">Total Comments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ analytics.newsletterSubscribers }}</div>
+          <div class="stat-label">Subscribers</div>
+        </div>
+      </div>
+
+      @if ((analytics.mostViewedPosts ?? []).length > 0) {
+        <div class="card">
+          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">📈 Recent Posts Performance</h3>
+          <div style="display: grid; gap: 8px;">
+            @for (post of (analytics.mostViewedPosts ?? []).slice(0, 5); track post.postId) {
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-secondary); border-radius: 10px;">
+                <span class="font-medium text-sm">{{ post.title }}</span>
+                <div style="display: flex; gap: 16px;" class="text-muted text-xs">
+                  <span>👁 {{ post.viewCount }}</span>
+                  <span>❤️ {{ post.likesCount }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+
+  <!-- Users -->
+  @if (activeTab === 'users') {
+    @if (usersLoading) {
+      <div class="text-muted">Loading users...</div>
+    }
+    @if (usersError) {
+      <div class="text-danger">{{ usersError }}</div>
+    }
+    @if (!usersLoading && users.length > 0) {
+      <div class="card" style="overflow-x: auto; padding: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user.userId) {
+              <tr>
+                <td>
+                  <div class="font-semibold text-sm">{{ user.fullName }}</div>
+                  <div class="text-muted text-xs">&#64;{{ user.username }}</div>
+                </td>
+                <td class="text-muted text-sm">{{ user.email }}</td>
+                <td>
+                  <select
+                    class="input"
+                    style="width: auto; padding: 4px 8px; font-size: 12px; border-radius: 8px;"
+                    [value]="user.role"
+                    (change)="changeRole(user.userId, $any($event.target).value)"
+                    [disabled]="user.userId === getCurrentUserId()"
+                  >
+                    <option value="Reader">Reader</option>
+                    <option value="Author">Author</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </td>
+                <td>
+                  @if (user.isActive) {
+                    <span class="badge badge-success">Active</span>
+                  } @else {
+                    <span class="badge badge-danger">Suspended</span>
+                  }
+                </td>
+                <td>
+                  @if (user.userId !== getCurrentUserId()) {
+                    <div style="display: flex; gap: 4px;">
+                      @if (user.isActive) {
+                        <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="suspendUser(user.userId)">Suspend</button>
+                      } @else {
+                        <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="reactivateUser(user.userId)">Activate</button>
+                      }
+                      <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px; border: var(--border);" (click)="deleteUser(user.userId)">Delete</button>
+                    </div>
+                  } @else {
+                    <span class="badge badge-muted">You</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- Posts -->
+  @if (activeTab === 'posts') {
+    @if (postsLoading) {
+      <div class="text-muted">Loading posts...</div>
+    }
+    @if (!postsLoading && posts.length === 0) {
+      <div class="card" style="text-align: center; padding: 40px;">
+        <p class="text-muted">No published posts.</p>
+      </div>
+    }
+    @if (!postsLoading && posts.length > 0) {
+      <div style="display: grid; gap: 10px;">
+        @for (post of posts; track post.postId) {
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                @if (post.isFeatured) {
+                  <span class="badge badge-warning">⭐ Featured</span>
+                }
+                <span class="font-semibold text-sm" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  {{ post.title }}
+                </span>
+              </div>
+              <div class="text-muted text-xs mt-1">
+                👁 {{ post.viewCount }} • ❤️ {{ post.likesCount }}
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              @if (!post.isFeatured) {
+                <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="featurePost(post.postId)">⭐ Feature</button>
+              } @else {
+                <button class="btn-ghost btn-xs" style="border-radius: 6px; border: var(--border);" (click)="unfeaturePost(post.postId)">Unfeature</button>
+              }
+              <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px; border: var(--border);" (click)="deletePost(post.postId)">Delete</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Taxonomy -->
+  @if (activeTab === 'taxonomy') {
+    @if (taxonomyLoading) {
+      <div class="text-muted">Loading...</div>
+    }
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <!-- Categories -->
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">📂 Categories</h3>
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input class="input" [(ngModel)]="newCategoryName" placeholder="New category name" style="flex: 1;" />
+          <button class="btn-primary btn-sm" style="border-radius: 8px;" (click)="createCategory()" [disabled]="!newCategoryName.trim()">Add</button>
+        </div>
+        <div style="display: grid; gap: 6px;">
+          @for (cat of categories; track cat.categoryId) {
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px;">
+              <span class="text-sm font-medium">{{ cat.name }}</span>
+              <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px;" (click)="deleteCategory(cat.categoryId)">Delete</button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">🏷️ Tags</h3>
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input class="input" [(ngModel)]="newTagName" placeholder="New tag name" style="flex: 1;" />
+          <button class="btn-primary btn-sm" style="border-radius: 8px;" (click)="createTag()" [disabled]="!newTagName.trim()">Add</button>
+        </div>
+        <div style="display: grid; gap: 6px;">
+          @for (tag of tags; track tag.tagId) {
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px;">
+              <span class="text-sm font-medium">{{ tag.name }}</span>
+              <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px;" (click)="deleteTag(tag.tagId)">Delete</button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Newsletter -->
+  @if (activeTab === 'newsletter') {
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <!-- Subscribers -->
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">
+          📧 Subscribers
+          <span class="badge badge-muted" style="margin-left: 8px;">{{ subscribers.length }}</span>
+        </h3>
+        @if (newsletterLoading) {
+          <div class="text-muted text-sm">Loading...</div>
+        }
+        <div style="max-height: 400px; overflow-y: auto; display: grid; gap: 6px;">
+          @for (sub of subscribers; track sub.subscriberId) {
+            <div style="padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px;">
+              <div class="text-sm font-medium">{{ sub.email }}</div>
+              <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                @if (sub.status === 'Active') {
+                  <span class="badge badge-success">Active</span>
+                } @else if (sub.status === 'Pending') {
+                  <span class="badge badge-warning">Pending</span>
+                } @else {
+                  <span class="badge badge-muted">{{ sub.status }}</span>
+                }
+                <span class="text-muted text-xs">{{ formatDate(sub.subscribedAt) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Send Campaign -->
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">✉️ Send Campaign</h3>
+        <div style="display: grid; gap: 14px;">
+          <div>
+            <label class="label">Subject</label>
+            <input class="input" [(ngModel)]="newsletterSubject" placeholder="Newsletter subject" />
+          </div>
+          <div>
+            <label class="label">Content (HTML)</label>
+            <textarea class="input" rows="8" [(ngModel)]="newsletterContent" placeholder="<h1>Hello!</h1><p>Newsletter content...</p>"></textarea>
+          </div>
+          @if (newsletterSuccess) {
+            <div style="background: var(--success-light); color: var(--success); padding: 10px 14px; border-radius: 8px; font-size: 13px;">
+              ✅ {{ newsletterSuccess }}
+            </div>
+          }
+          @if (newsletterError) {
+            <div style="background: var(--danger-light); color: var(--danger); padding: 10px 14px; border-radius: 8px; font-size: 13px;">
+              {{ newsletterError }}
+            </div>
+          }
+          <button class="btn-gradient" (click)="sendNewsletter()" [disabled]="sendingNewsletter || !newsletterSubject.trim() || !newsletterContent.trim()" style="padding: 12px; border-radius: 10px;">
+            {{ sendingNewsletter ? 'Sending...' : '📤 Send Newsletter' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Audit Logs -->
+  @if (activeTab === 'audit') {
+    @if (auditLoading) {
+      <div class="text-muted">Loading audit logs...</div>
+    }
+    @if (!auditLoading && auditLogs.length === 0) {
+      <div class="card" style="text-align: center; padding: 40px;">
+        <p class="text-muted">No audit logs yet.</p>
+      </div>
+    }
+    @if (!auditLoading && auditLogs.length > 0) {
+      <div style="display: grid; gap: 8px;">
+        @for (log of auditLogs; track log.auditLogId) {
+          <div class="card" style="padding: 16px 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span class="badge badge-primary" style="margin-right: 8px;">{{ log.action }}</span>
+                <span class="font-medium text-sm">{{ log.entityType }}</span>
+                @if (log.entityId) {
+                  <span class="text-muted text-xs" style="margin-left: 4px;">({{ log.entityId }})</span>
+                }
+              </div>
+              <span class="text-muted text-xs">{{ formatDate(log.createdAt) }}</span>
+            </div>
+            <div class="text-muted text-xs mt-2">
+              By: <strong>{{ log.actorUsername }}</strong>
+              @if (log.details) {
+                — {{ log.details }}
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>

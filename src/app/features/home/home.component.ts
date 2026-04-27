@@ -207,4 +207,11 @@ export class HomeComponent implements OnInit {
     if (err?.error) return typeof err.error === 'string' ? err.error : 'Request failed';
     return err?.message ?? 'Request failed';
   }
+  formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
 }

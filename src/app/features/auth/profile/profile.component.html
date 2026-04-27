@@ -1,125 +1,106 @@
-<div class="profile-container">
-  <div class="profile-header">
+<div class="container-sm" style="padding-top: 20px;">
+
+  <!-- Profile Header Card -->
+  <div class="card" style="padding: 32px; text-align: center; margin-bottom: 24px;">
     @if (authService.currentUser()?.avatarUrl) {
       <img
         [src]="authService.currentUser()?.avatarUrl"
         [alt]="authService.currentUser()?.fullName"
-        class="avatar"
+        style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; border: 3px solid var(--primary-light);"
       />
     } @else {
-      <div class="avatar-placeholder">
+      <div style="
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+      ">
         {{ authService.currentUser()?.fullName?.charAt(0)?.toUpperCase() }}
       </div>
     }
-    <div class="profile-info">
-      <h2>{{ authService.currentUser()?.fullName }}</h2>
-      <span class="role-badge">{{ authService.currentUser()?.role }}</span>
-      <p class="username">@{{ authService.currentUser()?.username }}</p>
-    </div>
+
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">
+      {{ authService.currentUser()?.fullName }}
+    </h2>
+    <p class="text-muted text-sm" style="margin-bottom: 8px;">
+      &#64;{{ authService.currentUser()?.username }}
+    </p>
+    <span class="badge badge-primary">{{ authService.currentUser()?.role }}</span>
   </div>
 
-  <div class="profile-sections">
-    <section class="profile-section">
-      <h3>Edit Profile</h3>
+  <!-- Edit Profile -->
+  <div class="card" style="padding: 32px; margin-bottom: 24px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">✏️ Edit Profile</h3>
 
-      @if (profileMessage()) {
-        <div class="success-message">{{ profileMessage() }}</div>
-      }
-      @if (profileError()) {
-        <div class="error-message">{{ profileError() }}</div>
-      }
+    @if (profileMessage()) {
+      <div style="background: var(--success-light); color: var(--success); padding: 10px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px;">
+        {{ profileMessage() }}
+      </div>
+    }
+    @if (profileError()) {
+      <div style="background: var(--danger-light); color: var(--danger); padding: 10px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px;">
+        {{ profileError() }}
+      </div>
+    }
 
-      <form (ngSubmit)="onUpdateProfile()">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input
-            type="text"
-            [ngModel]="fullName()"
-            (ngModelChange)="fullName.set($event)"
-            name="fullName"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            [ngModel]="email()"
-            (ngModelChange)="email.set($event)"
-            name="email"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label>Bio</label>
-          <textarea
-            [ngModel]="bio()"
-            (ngModelChange)="bio.set($event)"
-            name="bio"
-            rows="3"
-            placeholder="Tell us about yourself"
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Avatar URL</label>
-          <input
-            type="url"
-            [ngModel]="avatarUrl()"
-            (ngModelChange)="avatarUrl.set($event)"
-            name="avatarUrl"
-            placeholder="https://example.com/avatar.jpg"
-          />
-        </div>
-
-        <button type="submit" class="btn-primary" [disabled]="isProfileLoading()">
-          {{ isProfileLoading() ? 'Saving...' : 'Save Changes' }}
-        </button>
-      </form>
-    </section>
-
-    <section class="profile-section">
-      <h3>Change Password</h3>
-
-      @if (passwordMessage()) {
-        <div class="success-message">{{ passwordMessage() }}</div>
-      }
-      @if (passwordError()) {
-        <div class="error-message">{{ passwordError() }}</div>
-      }
-
-      <form (ngSubmit)="onChangePassword()">
-        <div class="form-group">
-          <label>Current Password</label>
-          <input
-            type="password"
-            [ngModel]="currentPassword()"
-            (ngModelChange)="currentPassword.set($event)"
-            name="currentPassword"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>New Password</label>
-          <input
-            type="password"
-            [ngModel]="newPassword()"
-            (ngModelChange)="newPassword.set($event)"
-            name="newPassword"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="btn-primary"
-          [disabled]="isPasswordLoading()"
-        >
-          {{ isPasswordLoading() ? 'Changing...' : 'Change Password' }}
-        </button>
-      </form>
-    </section>
+    <form (ngSubmit)="onUpdateProfile()" style="display: grid; gap: 16px;">
+      <div>
+        <label class="label">Full Name</label>
+        <input class="input" type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" required />
+      </div>
+      <div>
+        <label class="label">Email</label>
+        <input class="input" type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" required />
+      </div>
+      <div>
+        <label class="label">Bio</label>
+        <textarea class="input" rows="3" [ngModel]="bio()" (ngModelChange)="bio.set($event)" name="bio" placeholder="Tell us about yourself..."></textarea>
+      </div>
+      <div>
+        <label class="label">Avatar URL</label>
+        <input class="input" type="url" [ngModel]="avatarUrl()" (ngModelChange)="avatarUrl.set($event)" name="avatarUrl" placeholder="https://example.com/avatar.jpg" />
+      </div>
+      <button type="submit" class="btn-gradient" [disabled]="isProfileLoading()" style="padding: 12px; border-radius: 10px; font-size: 14px;">
+        {{ isProfileLoading() ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </form>
   </div>
+
+  <!-- Change Password -->
+  <div class="card" style="padding: 32px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">🔒 Change Password</h3>
+
+    @if (passwordMessage()) {
+      <div style="background: var(--success-light); color: var(--success); padding: 10px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px;">
+        {{ passwordMessage() }}
+      </div>
+    }
+    @if (passwordError()) {
+      <div style="background: var(--danger-light); color: var(--danger); padding: 10px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px;">
+        {{ passwordError() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onChangePassword()" style="display: grid; gap: 16px;">
+      <div>
+        <label class="label">Current Password</label>
+        <input class="input" type="password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)" name="currentPassword" />
+      </div>
+      <div>
+        <label class="label">New Password</label>
+        <input class="input" type="password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" name="newPassword" required />
+      </div>
+      <button type="submit" class="btn-gradient" [disabled]="isPasswordLoading()" style="padding: 12px; border-radius: 10px; font-size: 14px;">
+        {{ isPasswordLoading() ? 'Changing...' : 'Change Password' }}
+      </button>
+    </form>
+  </div>
+
 </div>

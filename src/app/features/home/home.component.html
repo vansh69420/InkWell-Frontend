@@ -1,80 +1,198 @@
 <div class="container">
-  <h2>InkWell — Public Feed</h2>
 
-  <div class="toolbar">
-    <input
-      class="input"
-      [(ngModel)]="keyword"
-      placeholder="Search posts by keyword..."
-      (keydown.enter)="onSearch()"
-    />
-    <button class="btn" (click)="onSearch()">Search</button>
-    <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
-  </div>
+  <!-- Hero Section -->
+  <div style="
+    text-align: center;
+    padding: 48px 20px 40px;
+  ">
+    <h1 style="
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--text), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    ">
+      Discover Stories
+    </h1>
+    <p class="text-secondary" style="font-size: 18px; max-width: 520px; margin: 0 auto 32px;">
+      Read, write, and connect with ideas that matter.
+    </p>
 
-  <div class="filters">
-    <label>
-      Category:
-      <select class="select" [(ngModel)]="selectedCategoryId" (change)="onCategoryChange()">
-        <option [ngValue]="null">All</option>
-        <option *ngFor="let c of categories" [ngValue]="c.categoryId">
-          {{ c.name }}
-        </option>
-      </select>
-    </label>
-
-    <label>
-      Tag:
-      <select class="select" [(ngModel)]="selectedTagId" (change)="onTagChange()">
-        <option [ngValue]="null">All</option>
-        <option *ngFor="let t of tags" [ngValue]="t.tagId">
-          {{ t.name }}
-        </option>
-      </select>
-    </label>
-  </div>
-
-  <!-- Optional: show filter loading/errors without blocking posts -->
-  <div class="info" *ngIf="loadingCategories">Loading categories...</div>
-  <div class="error" *ngIf="errorCategories">{{ errorCategories }}</div>
-
-  <div class="info" *ngIf="loadingTags">Loading tags...</div>
-  <div class="error" *ngIf="errorTags">{{ errorTags }}</div>
-
-  <!-- Posts status -->
-  <div *ngIf="loadingPosts" class="info">Loading posts...</div>
-  <div *ngIf="errorPosts" class="error">{{ errorPosts }}</div>
-
-  <div *ngIf="!loadingPosts && posts.length === 0" class="info">
-    No posts found.
-  </div>
-
-  <div class="posts">
-    <div class="post-card" *ngFor="let p of posts; trackBy: trackByPostId">
-      <div class="post-title" (click)="openPost(p.slug)">
-        {{ p.title }}
-      </div>
-
-      <div class="post-meta">
-        <span>Read: {{ p.readTimeMin }} min</span>
-        <span>Views: {{ p.viewCount }}</span>
-        <span>Likes: {{ p.likesCount }}</span>
-      </div>
-
-      <div class="post-excerpt">
-        {{ p.excerpt }}
-      </div>
-
-      <div class="post-actions">
-        <button class="btn" (click)="openPost(p.slug)">Read</button>
-        <button class="btn btn-secondary" (click)="openAuthor(p.authorId)">
-          More from author
-        </button>
-      </div>
+    <!-- Search Bar -->
+    <div style="
+      max-width: 560px;
+      margin: 0 auto;
+      position: relative;
+    ">
+      <input
+        class="input"
+        [(ngModel)]="keyword"
+        placeholder="Search posts by title or content..."
+        (keyup.enter)="onSearch()"
+        style="
+          padding: 14px 120px 14px 20px;
+          border-radius: 16px;
+          font-size: 15px;
+          box-shadow: var(--shadow-md);
+        "
+      />
+      <button
+        class="btn-primary"
+        (click)="onSearch()"
+        style="
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          border-radius: 12px;
+          padding: 10px 20px;
+          font-size: 14px;
+        "
+      >
+        🔍 Search
+      </button>
     </div>
   </div>
+
+  <!-- Filters -->
+  <div style="
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  ">
+
+    <!-- Categories -->
+    <div style="flex: 1; min-width: 200px;">
+      <label class="label">Categories</label>
+      <select
+        class="input"
+        [ngModel]="selectedCategoryId"
+        (ngModelChange)="selectedCategoryId = $event; onCategoryChange()"
+        style="border-radius: 12px;"
+      >
+        <option [ngValue]="null">All Categories</option>
+        @for (c of categories; track c.categoryId) {
+          <option [ngValue]="c.categoryId">{{ c.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Tags -->
+    <div style="flex: 1; min-width: 200px;">
+      <label class="label">Tags</label>
+      <select
+        class="input"
+        [ngModel]="selectedTagId"
+        (ngModelChange)="selectedTagId = $event; onTagChange()"
+        style="border-radius: 12px;"
+      >
+        <option [ngValue]="null">All Tags</option>
+        @for (t of tags; track t.tagId) {
+          <option [ngValue]="t.tagId">{{ t.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Clear Filters -->
+    <div style="padding-top: 24px;">
+      <button
+        class="btn-ghost btn-sm"
+        (click)="clearFilters()"
+        style="border-radius: 10px; border: var(--border);"
+      >
+        ✕ Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loadingPosts) {
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="skeleton" style="height: 200px;"></div>
+          <div style="padding: 20px;">
+            <div class="skeleton" style="height: 20px; width: 80%; margin-bottom: 12px;"></div>
+            <div class="skeleton" style="height: 14px; width: 100%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 14px; width: 60%;"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorPosts) {
+    <div class="card" style="text-align: center; padding: 40px;">
+      <div style="font-size: 48px; margin-bottom: 12px;">😕</div>
+      <p class="text-danger font-semibold">{{ errorPosts }}</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loadingPosts && !errorPosts && posts.length === 0) {
+    <div class="card" style="text-align: center; padding: 60px 20px;">
+      <div style="font-size: 56px; margin-bottom: 16px;">📝</div>
+      <h3 style="margin-bottom: 8px;">No posts found</h3>
+      <p class="text-muted">Try a different search or filter.</p>
+    </div>
+  }
+
+  <!-- Posts Grid -->
+  @if (!loadingPosts && !errorPosts && posts.length > 0) {
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px;">
+      @for (p of posts; track p.postId) {
+        <div class="post-card" (click)="openPost(p.slug)">
+
+          @if (p.featuredImageUrl) {
+            <img
+              [src]="p.featuredImageUrl"
+              [alt]="p.title"
+              class="post-card-image"
+            />
+          } @else {
+            <div style="
+              height: 200px;
+              background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span style="font-size: 48px; opacity: 0.5;">📄</span>
+            </div>
+          }
+
+          <div class="post-card-body">
+
+            @if (p.isFeatured) {
+              <span class="badge badge-warning" style="margin-bottom: 8px;">⭐ Featured</span>
+            }
+
+            <h3 class="post-card-title">{{ p.title }}</h3>
+            <p class="post-card-excerpt">{{ p.excerpt }}</p>
+
+            <div class="post-card-meta">
+              <span>📖 {{ p.readTimeMin }} min</span>
+              <span>👁 {{ p.viewCount }}</span>
+              <span>❤️ {{ p.likesCount }}</span>
+              @if (p.publishedAt) {
+                <span>{{ formatDate(p.publishedAt) }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
   <!-- Newsletter Widget -->
-<div style="margin-top:24px;">
-  <app-newsletter-widget></app-newsletter-widget>
-</div>
+  <div style="margin-top: 48px;">
+    <app-newsletter-widget />
+  </div>
+
 </div>

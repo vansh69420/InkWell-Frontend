@@ -1,57 +1,129 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Welcome Back</h2>
-    <p class="subtitle">Sign in to InkWell</p>
+<div class="container-sm" style="padding-top: 40px;">
+  <div class="card" style="padding: 40px;">
 
-    @if (errorMessage()) {
-      <div class="error-message">{{ errorMessage() }}</div>
-    }
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, var(--text), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      ">
+        Welcome Back
+      </h1>
+      <p class="text-secondary text-sm">Sign in to your InkWell account</p>
+    </div>
 
-    <form (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          [ngModel]="email()"
-          (ngModelChange)="email.set($event)"
-          name="email"
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          [ngModel]="password()"
-          (ngModelChange)="password.set($event)"
-          name="password"
-          placeholder="Enter your password"
-          required
-        />
-      </div>
-
-      <button type="submit" class="btn-primary" [disabled]="isLoading()">
-        {{ isLoading() ? 'Signing in...' : 'Sign In' }}
-      </button>
-    </form>
-
-    <div class="divider">or</div>
-
-    <div class="oauth-buttons">
-      <button class="btn-oauth btn-google" (click)="onGoogleLogin()">
+    <!-- OAuth Buttons -->
+    <div style="display: grid; gap: 12px; margin-bottom: 24px;">
+      <button
+        class="btn-secondary"
+        (click)="onGoogleLogin()"
+        style="
+          padding: 12px;
+          border-radius: 12px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: 100%;
+          cursor: pointer;
+        "
+      >
+        <span style="font-size: 18px;">🔵</span>
         Continue with Google
       </button>
-      <button class="btn-oauth btn-github" (click)="onGitHubLogin()">
+
+      <button
+        class="btn-secondary"
+        (click)="onGitHubLogin()"
+        style="
+          padding: 12px;
+          border-radius: 12px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: 100%;
+          cursor: pointer;
+        "
+      >
+        <span style="font-size: 18px;">⚫</span>
         Continue with GitHub
       </button>
     </div>
 
-    <p class="auth-link">
-      Don't have an account? <a routerLink="/register">Register</a>
+    <!-- Divider -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+      <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+      <span class="text-muted text-sm">or sign in with email</span>
+      <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" style="display: grid; gap: 16px;">
+      <div>
+        <label class="label">Email</label>
+        <input
+          class="input"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </div>
+
+      <div>
+        <label class="label">Password</label>
+        <input
+          class="input"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+
+      @if (error) {
+        <div style="
+          background: var(--danger-light);
+          color: var(--danger);
+          padding: 10px 16px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 500;
+        ">
+          {{ error }}
+        </div>
+      }
+
+      <button
+        type="submit"
+        class="btn-gradient"
+        [disabled]="loading"
+        style="
+          width: 100%;
+          padding: 14px;
+          border-radius: 12px;
+          font-size: 15px;
+          margin-top: 8px;
+        "
+      >
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <p style="text-align: center; margin-top: 24px;" class="text-sm text-secondary">
+      Don't have an account?
+      <a routerLink="/register" style="font-weight: 600;">Create one</a>
     </p>
+
   </div>
 </div>

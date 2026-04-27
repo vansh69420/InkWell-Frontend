@@ -1,95 +1,149 @@
-<div class="container">
-  <a routerLink="/home" style="display:inline-block;margin-bottom:16px;color:var(--muted);">← Back to feed</a>
+<div class="container-md" style="padding-top: 20px;">
+
+  <a routerLink="/home" class="btn-ghost btn-sm" style="margin-bottom: 20px; display: inline-flex; border-radius: 10px; border: var(--border);">
+    ← Back to feed
+  </a>
 
   @if (loading) {
-    <div class="muted">Loading post...</div>
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div class="skeleton" style="height: 300px;"></div>
+      <div style="padding: 32px;">
+        <div class="skeleton" style="height: 32px; width: 70%; margin-bottom: 16px;"></div>
+        <div class="skeleton" style="height: 14px; width: 40%; margin-bottom: 24px;"></div>
+        <div class="skeleton" style="height: 14px; width: 100%; margin-bottom: 10px;"></div>
+        <div class="skeleton" style="height: 14px; width: 90%; margin-bottom: 10px;"></div>
+        <div class="skeleton" style="height: 14px; width: 75%;"></div>
+      </div>
+    </div>
   }
 
   @if (error) {
-    <div style="color:var(--danger);">{{ error }}</div>
+    <div class="card" style="text-align: center; padding: 60px;">
+      <div style="font-size: 56px; margin-bottom: 16px;">😕</div>
+      <h3 class="text-danger">{{ error }}</h3>
+    </div>
   }
 
   @if (!loading && post) {
 
-    <!-- Post Header -->
-    <div class="card" style="margin-bottom:16px;">
+    <!-- Post Content Card -->
+    <article class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+
       @if (post.featuredImageUrl) {
         <img
           [src]="post.featuredImageUrl"
           [alt]="post.title"
-          style="width:100%;max-height:360px;object-fit:cover;border-radius:10px;margin-bottom:16px;"
+          style="width: 100%; max-height: 420px; object-fit: cover;"
         />
       }
 
-      <h1 style="margin:0 0 10px;">{{ post.title }}</h1>
+      <div style="padding: 36px;">
 
-      @if (post.excerpt) {
-        <p style="color:var(--muted);font-size:15px;margin:0 0 12px;">{{ post.excerpt }}</p>
-      }
+        <h1 style="
+          font-size: 36px;
+          font-weight: 800;
+          line-height: 1.2;
+          letter-spacing: -0.5px;
+          margin-bottom: 16px;
+        ">
+          {{ post.title }}
+        </h1>
 
-      <div style="display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-bottom:16px;">
-        <span>📖 {{ post.readTimeMin }} min read</span>
-        <span>👁 {{ post.viewCount }} views</span>
-        <span>📅 {{ formatDate(post.createdAt) }}</span>
-      </div>
-
-      <!-- Like Button -->
-      <div style="display:flex;align-items:center;gap:10px;">
-        @if (authService.isAuthenticated()) {
-          <button
-            class="btn secondary"
-            (click)="toggleLike()"
-            [disabled]="likeLoading"
-            style="display:flex;align-items:center;gap:6px;"
-          >
-            {{ post.isLikedByCurrentUser ? '❤️' : '🤍' }}
-            {{ post.likesCount }}
-          </button>
-        } @else {
-          <span style="color:var(--muted);font-size:14px;">
-            ❤️ {{ post.likesCount }} likes
-          </span>
+        @if (post.excerpt) {
+          <p class="text-secondary" style="font-size: 17px; line-height: 1.6; margin-bottom: 20px;">
+            {{ post.excerpt }}
+          </p>
         }
 
-        <button
-          class="btn secondary"
-          (click)="toggleComments()"
-          style="display:flex;align-items:center;gap:6px;"
-        >
-          💬 {{ commentCount }} comments
-        </button>
-      </div>
-    </div>
+        <!-- Meta -->
+        <div style="
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+          padding: 16px 0;
+          border-top: var(--border);
+          border-bottom: var(--border);
+          margin-bottom: 32px;
+        ">
+          <span class="text-muted text-sm" style="display: flex; align-items: center; gap: 6px;">
+            📖 {{ post.readTimeMin }} min read
+          </span>
+          <span class="text-muted text-sm" style="display: flex; align-items: center; gap: 6px;">
+            👁 {{ post.viewCount }} views
+          </span>
+          <span class="text-muted text-sm" style="display: flex; align-items: center; gap: 6px;">
+            📅 {{ formatDate(post.createdAt) }}
+          </span>
+        </div>
 
-    <!-- Post Content -->
-    <div class="card" style="margin-bottom:16px;">
-      <div class="content" [innerHTML]="sanitizedContent"></div>
-    </div>
+        <!-- Like & Comments Buttons -->
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+          @if (authService.isAuthenticated()) {
+            <button
+              class="btn-sm"
+              [class]="post.isLikedByCurrentUser ? 'btn-primary' : 'btn-secondary'"
+              (click)="toggleLike()"
+              [disabled]="likeLoading"
+              style="border-radius: 10px; display: flex; align-items: center; gap: 6px;"
+            >
+              {{ post.isLikedByCurrentUser ? '❤️' : '🤍' }}
+              {{ post.likesCount }} likes
+            </button>
+          } @else {
+            <span class="badge badge-muted" style="padding: 6px 14px;">
+              ❤️ {{ post.likesCount }} likes
+            </span>
+          }
+
+          <button
+            class="btn-secondary btn-sm"
+            (click)="toggleComments()"
+            style="border-radius: 10px; display: flex; align-items: center; gap: 6px;"
+          >
+            💬 {{ commentCount }} comments
+          </button>
+        </div>
+
+        <!-- Post Content -->
+        <div class="prose" [innerHTML]="sanitizedContent"></div>
+
+      </div>
+    </article>
 
     <!-- Comments Section -->
     @if (showComments) {
-      <div class="card">
-        <h3 style="margin:0 0 16px;">Comments</h3>
+      <div class="card" style="margin-bottom: 32px;">
+        <h3 style="margin: 0 0 20px; font-size: 20px; font-weight: 700;">
+          💬 Comments ({{ commentCount }})
+        </h3>
 
         <!-- Add Comment -->
         @if (authService.isAuthenticated()) {
-          <div style="margin-bottom:20px;">
+          <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: var(--border);">
             <textarea
               class="input"
               rows="3"
               [(ngModel)]="newCommentContent"
-              placeholder="Write a comment..."
-              style="margin-bottom:8px;"
+              placeholder="Share your thoughts..."
+              style="margin-bottom: 10px; border-radius: 12px;"
             ></textarea>
 
             @if (addCommentError) {
-              <div style="color:var(--danger);font-size:13px;margin-bottom:6px;">
+              <div style="
+                background: var(--danger-light);
+                color: var(--danger);
+                padding: 8px 14px;
+                border-radius: 8px;
+                font-size: 13px;
+                margin-bottom: 10px;
+              ">
                 {{ addCommentError }}
               </div>
             }
 
             <button
-              class="btn"
+              class="btn-primary btn-sm"
+              style="border-radius: 10px;"
               (click)="submitComment()"
               [disabled]="addingComment || !newCommentContent.trim()"
             >
@@ -97,170 +151,172 @@
             </button>
           </div>
         } @else {
-          <div class="muted" style="margin-bottom:16px;font-size:14px;">
-            <a routerLink="/login" style="color:var(--primary);">Login</a> to leave a comment.
+          <div style="
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 24px;
+          ">
+            <a routerLink="/login" style="font-weight: 600;">Sign in</a>
+            <span class="text-muted"> to join the conversation.</span>
+          </div>
+        }
+
+        <!-- Comments Loading -->
+        @if (commentsLoading) {
+          <div class="text-muted text-sm">Loading comments...</div>
+        }
+
+        @if (commentsError) {
+          <div class="text-danger text-sm">{{ commentsError }}</div>
+        }
+
+        @if (!commentsLoading && comments.length === 0) {
+          <div style="text-align: center; padding: 24px;">
+            <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
           </div>
         }
 
         <!-- Comments List -->
-        @if (commentsLoading) {
-          <div class="muted">Loading comments...</div>
-        }
-
-        @if (commentsError) {
-          <div style="color:var(--danger);">{{ commentsError }}</div>
-        }
-
-        @if (!commentsLoading && comments.length === 0) {
-          <div class="muted">No comments yet. Be the first!</div>
-        }
-
         @for (comment of comments; track comment.commentId) {
-          <div style="border-top:var(--border);padding-top:14px;margin-top:14px;">
+          <div style="padding: 16px 0; border-top: var(--border);">
 
             <!-- Comment Header -->
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-              <div>
-                <span style="font-weight:600;font-size:14px;">
-                  {{ comment.authorFullName }}
-                </span>
-                <span class="muted" style="font-size:12px;margin-left:8px;">
-                  {{ formatDate(comment.createdAt) }}
-                </span>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  background: var(--gradient);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-weight: 700;
+                  font-size: 14px;
+                ">
+                  {{ comment.authorFullName.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="font-semibold text-sm">{{ comment.authorFullName }}</div>
+                  <div class="text-muted text-xs">{{ formatDate(comment.createdAt) }}</div>
+                </div>
               </div>
 
               @if (isOwnComment(comment)) {
-                <div style="display:flex;gap:6px;">
-                  <button class="btn secondary" style="padding:4px 8px;font-size:12px;" (click)="startEdit(comment)">Edit</button>
-                  <button class="btn danger" style="padding:4px 8px;font-size:12px;" (click)="deleteComment(comment.commentId)">Delete</button>
+                <div style="display: flex; gap: 4px;">
+                  <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="startEdit(comment)">Edit</button>
+                  <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px;" (click)="deleteComment(comment.commentId)">Delete</button>
                 </div>
               }
             </div>
 
-            <!-- Comment Content or Edit Form -->
+            <!-- Comment Content -->
             @if (editingCommentId === comment.commentId) {
-              <div style="margin-top:8px;">
-                <textarea
-                  class="input"
-                  rows="2"
-                  [(ngModel)]="editContent"
-                  style="margin-bottom:6px;"
-                ></textarea>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn" style="padding:4px 10px;font-size:13px;" (click)="saveEdit(comment.commentId)" [disabled]="savingEdit">Save</button>
-                  <button class="btn secondary" style="padding:4px 10px;font-size:13px;" (click)="cancelEdit()">Cancel</button>
+              <div style="margin-top: 10px; margin-left: 46px;">
+                <textarea class="input" rows="2" [(ngModel)]="editContent" style="margin-bottom: 8px; border-radius: 10px;"></textarea>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-primary btn-xs" style="border-radius: 6px;" (click)="saveEdit(comment.commentId)" [disabled]="savingEdit">Save</button>
+                  <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="cancelEdit()">Cancel</button>
                 </div>
               </div>
             } @else {
-              <p style="margin:6px 0;font-size:14px;">{{ comment.content }}</p>
+              <p style="margin: 8px 0 8px 46px; font-size: 14px; line-height: 1.6;">
+                {{ comment.content }}
+              </p>
             }
 
             <!-- Comment Actions -->
-            <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-left: 46px;">
               @if (authService.isAuthenticated()) {
-                <button
-                  class="btn secondary"
-                  style="padding:2px 8px;font-size:12px;"
-                  (click)="toggleCommentLike(comment)"
-                >
+                <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="toggleCommentLike(comment)">
                   {{ comment.isLikedByCurrentUser ? '❤️' : '🤍' }} {{ comment.likesCount }}
                 </button>
-              } @else {
-                <span class="muted" style="font-size:12px;">❤️ {{ comment.likesCount }}</span>
-              }
-
-              @if (authService.isAuthenticated()) {
-                <button
-                  class="btn secondary"
-                  style="padding:2px 8px;font-size:12px;"
-                  (click)="startReply(comment.commentId)"
-                >
+                <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="startReply(comment.commentId)">
                   Reply
                 </button>
+              } @else {
+                <span class="text-muted text-xs">❤️ {{ comment.likesCount }}</span>
               }
             </div>
 
             <!-- Reply Form -->
             @if (replyingToId === comment.commentId) {
-              <div style="margin-top:10px;padding-left:16px;border-left:2px solid var(--primary);">
+              <div style="margin: 12px 0 0 46px; padding-left: 16px; border-left: 2px solid var(--primary);">
                 <textarea
                   class="input"
                   rows="2"
                   [(ngModel)]="replyContent"
                   placeholder="Write a reply..."
-                  style="margin-bottom:6px;"
+                  style="margin-bottom: 8px; border-radius: 10px;"
                 ></textarea>
-                <div style="display:flex;gap:6px;">
-                  <button
-                    class="btn"
-                    style="padding:4px 10px;font-size:13px;"
-                    (click)="submitReply(comment.commentId)"
-                    [disabled]="addingReply || !replyContent.trim()"
-                  >
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-primary btn-xs" style="border-radius: 6px;" (click)="submitReply(comment.commentId)" [disabled]="addingReply || !replyContent.trim()">
                     {{ addingReply ? 'Replying...' : 'Reply' }}
                   </button>
-                  <button
-                    class="btn secondary"
-                    style="padding:4px 10px;font-size:13px;"
-                    (click)="cancelReply()"
-                  >
-                    Cancel
-                  </button>
+                  <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="cancelReply()">Cancel</button>
                 </div>
               </div>
             }
 
             <!-- Replies -->
             @if (comment.replies.length > 0) {
-              <div style="margin-top:12px;padding-left:16px;border-left:2px solid rgba(124,92,255,0.3);">
+              <div style="margin: 16px 0 0 46px; padding-left: 16px; border-left: 2px solid rgba(59, 130, 246, 0.2);">
                 @for (reply of comment.replies; track reply.commentId) {
-                  <div style="padding:10px 0;border-top:var(--border);">
-
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-                      <div>
-                        <span style="font-weight:600;font-size:13px;">{{ reply.authorFullName }}</span>
-                        <span class="muted" style="font-size:12px;margin-left:8px;">{{ formatDate(reply.createdAt) }}</span>
+                  <div style="padding: 12px 0; border-top: var(--border);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="
+                          width: 28px;
+                          height: 28px;
+                          border-radius: 50%;
+                          background: var(--bg-secondary);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-weight: 700;
+                          font-size: 11px;
+                          color: var(--text-secondary);
+                        ">
+                          {{ reply.authorFullName.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>
+                          <span class="font-semibold text-xs">{{ reply.authorFullName }}</span>
+                          <span class="text-muted text-xs" style="margin-left: 6px;">{{ formatDate(reply.createdAt) }}</span>
+                        </div>
                       </div>
 
                       @if (isOwnComment(reply)) {
-                        <div style="display:flex;gap:6px;">
-                          <button class="btn secondary" style="padding:3px 7px;font-size:11px;" (click)="startEdit(reply)">Edit</button>
-                          <button class="btn danger" style="padding:3px 7px;font-size:11px;" (click)="deleteComment(reply.commentId)">Delete</button>
+                        <div style="display: flex; gap: 4px;">
+                          <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="startEdit(reply)">Edit</button>
+                          <button class="btn-ghost btn-xs text-danger" style="border-radius: 6px;" (click)="deleteComment(reply.commentId)">Delete</button>
                         </div>
                       }
                     </div>
 
                     @if (editingCommentId === reply.commentId) {
-                      <div style="margin-top:6px;">
-                        <textarea
-                          class="input"
-                          rows="2"
-                          [(ngModel)]="editContent"
-                          style="margin-bottom:6px;"
-                        ></textarea>
-                        <div style="display:flex;gap:6px;">
-                          <button class="btn" style="padding:3px 8px;font-size:12px;" (click)="saveEdit(reply.commentId)" [disabled]="savingEdit">Save</button>
-                          <button class="btn secondary" style="padding:3px 8px;font-size:12px;" (click)="cancelEdit()">Cancel</button>
+                      <div style="margin-top: 8px; margin-left: 36px;">
+                        <textarea class="input" rows="2" [(ngModel)]="editContent" style="margin-bottom: 6px; border-radius: 8px;"></textarea>
+                        <div style="display: flex; gap: 4px;">
+                          <button class="btn-primary btn-xs" style="border-radius: 6px;" (click)="saveEdit(reply.commentId)" [disabled]="savingEdit">Save</button>
+                          <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="cancelEdit()">Cancel</button>
                         </div>
                       </div>
                     } @else {
-                      <p style="margin:4px 0;font-size:13px;">{{ reply.content }}</p>
+                      <p style="margin: 6px 0 6px 36px; font-size: 13px; line-height: 1.5;">{{ reply.content }}</p>
                     }
 
-                    <div style="margin-top:4px;">
+                    <div style="margin-left: 36px;">
                       @if (authService.isAuthenticated()) {
-                        <button
-                          class="btn secondary"
-                          style="padding:2px 6px;font-size:11px;"
-                          (click)="toggleCommentLike(reply)"
-                        >
+                        <button class="btn-ghost btn-xs" style="border-radius: 6px;" (click)="toggleCommentLike(reply)">
                           {{ reply.isLikedByCurrentUser ? '❤️' : '🤍' }} {{ reply.likesCount }}
                         </button>
                       } @else {
-                        <span class="muted" style="font-size:11px;">❤️ {{ reply.likesCount }}</span>
+                        <span class="text-muted text-xs">❤️ {{ reply.likesCount }}</span>
                       }
                     </div>
-
                   </div>
                 }
               </div>

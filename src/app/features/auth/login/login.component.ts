@@ -1,36 +1,37 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  email = signal('');
-  password = signal('');
-  errorMessage = signal('');
-  isLoading = signal(false);
+  email = '';
+  password = '';
+  loading = false;
+  error: string | null = null;
 
   async onSubmit(): Promise<void> {
-    this.errorMessage.set('');
-    this.isLoading.set(true);
+    if (!this.email.trim() || !this.password.trim()) return;
+
+    this.loading = true;
+    this.error = null;
 
     try {
-      await this.authService.login(this.email(), this.password());
-      this.router.navigate(['/profile']);
-    } catch (err: any) {
-      this.errorMessage.set(
-        err?.error ?? 'Login failed. Please check your credentials.'
-      );
+      await this.authService.login(this.email, this.password);
+      this.router.navigate(['/home']);
+    } catch (e: any) {
+      this.error = e?.error ?? e?.message ?? 'Login failed.';
     } finally {
-      this.isLoading.set(false);
+      this.loading = false;
     }
   }
 
