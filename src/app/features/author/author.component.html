@@ -1,25 +1,75 @@
 <div class="container">
-  <a routerLink="/home">← Back to feed</a>
 
-  <h2>Author Posts</h2>
+  <a routerLink="/home" class="btn-ghost btn-sm" style="margin-bottom: 20px; display: inline-flex; border-radius: 10px; border: var(--border);">
+    ← Back to feed
+  </a>
 
-  <div *ngIf="loading" class="info">Loading...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
-
-  <div *ngIf="!loading && !error && posts.length === 0" class="info">
-    No published posts for this author.
-  </div>
-
-  <div class="posts" *ngIf="!loading && !error">
-    <div class="post-card" *ngFor="let p of posts">
-      <div class="post-title" (click)="openPost(p.slug)">{{ p.title }}</div>
-      <div class="post-meta">
-        <span>Read: {{ p.readTimeMin }} min</span>
-        <span>Views: {{ p.viewCount }}</span>
-        <span>Likes: {{ p.likesCount }}</span>
-      </div>
-      <div class="post-excerpt">{{ p.excerpt }}</div>
-      <button class="btn" (click)="openPost(p.slug)">Read</button>
+  @if (loading) {
+    <div style="display: grid; gap: 16px;">
+      @for (i of [1,2,3]; track i) {
+        <div class="card" style="display: flex; gap: 16px; align-items: center;">
+          <div class="skeleton" style="width: 60px; height: 60px; border-radius: 10px;"></div>
+          <div style="flex: 1;">
+            <div class="skeleton" style="height: 18px; width: 60%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 13px; width: 40%;"></div>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  }
+
+  @if (!loading && error) {
+    <div class="card" style="text-align: center; padding: 40px;">
+      <div style="font-size: 48px; margin-bottom: 12px;">😕</div>
+      <p class="text-danger font-semibold">{{ error }}</p>
+    </div>
+  }
+
+  @if (!loading && !error && posts.length === 0) {
+    <div class="card" style="text-align: center; padding: 60px;">
+      <div style="font-size: 56px; margin-bottom: 16px;">📝</div>
+      <h3 style="margin-bottom: 8px;">No posts yet</h3>
+      <p class="text-muted">This author has not published any posts.</p>
+    </div>
+  }
+
+  @if (!loading && !error && posts.length > 0) {
+    <div style="margin-bottom: 24px;">
+      <h2 style="font-size: 22px; font-weight: 700;">Author's Posts</h2>
+      <p class="text-muted text-sm">{{ posts.length }} published articles</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+      @for (p of posts; track p.postId) {
+        <div class="post-card" (click)="openPost(p.slug)">
+
+          @if (p.featuredImageUrl) {
+            <img [src]="p.featuredImageUrl" [alt]="p.title" class="post-card-image" />
+          } @else {
+            <div style="
+              height: 180px;
+              background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span style="font-size: 40px; opacity: 0.5;">📄</span>
+            </div>
+          }
+
+          <div class="post-card-body">
+            <h3 class="post-card-title">{{ p.title }}</h3>
+            <p class="post-card-excerpt">{{ p.excerpt }}</p>
+            <div class="post-card-meta">
+              <span>📖 {{ p.readTimeMin }} min</span>
+              <span>👁 {{ p.viewCount }}</span>
+              <span>❤️ {{ p.likesCount }}</span>
+            </div>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
 </div>

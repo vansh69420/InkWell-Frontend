@@ -1,4 +1,4 @@
-<app-navbar />
-<main class="main-content">
+<app-navbar [isDark]="isDark()" (themeToggle)="toggleTheme()" />
+<main style="min-height: calc(100vh - 64px); padding-top: 80px;">
   <router-outlet />
 </main>

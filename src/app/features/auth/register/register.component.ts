@@ -1,43 +1,42 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  username = signal('');
-  email = signal('');
-  password = signal('');
-  fullName = signal('');
-  errorMessage = signal('');
-  isLoading = signal(false);
+  username = '';
+  email = '';
+  password = '';
+  fullName = '';
+  loading = false;
+  error: string | null = null;
 
   async onSubmit(): Promise<void> {
-    this.errorMessage.set('');
-    this.isLoading.set(true);
+    if (!this.username.trim() || !this.email.trim() ||
+        !this.password.trim() || !this.fullName.trim()) return;
+
+    this.loading = true;
+    this.error = null;
 
     try {
       await this.authService.register(
-        this.username(),
-        this.email(),
-        this.password(),
-        this.fullName()
+        this.username, this.email, this.password, this.fullName
       );
-      this.router.navigate(['/profile']);
-    } catch (err: any) {
-      this.errorMessage.set(
-        err?.error ?? 'Registration failed. Please try again.'
-      );
+      this.router.navigate(['/home']);
+    } catch (e: any) {
+      this.error = e?.error ?? e?.message ?? 'Registration failed.';
     } finally {
-      this.isLoading.set(false);
+      this.loading = false;
     }
   }
 }
