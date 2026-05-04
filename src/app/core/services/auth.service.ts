@@ -112,11 +112,11 @@ export class AuthService {
     return this.currentUser()?.role === role;
   }
 
-  loginWithGoogle(): void {
-    window.location.href = `http://localhost:5077/api/auth/oauth/google`;
+  lloginWithGoogle(): void {
+    window.location.href = `${environment.gateway}/auth/oauth/google`;
   }
 
   loginWithGitHub(): void {
-    window.location.href = `http://localhost:5077/api/auth/oauth/github`;
-}
+    window.location.href = `${environment.gateway}/auth/oauth/github`;
+  }
 }
