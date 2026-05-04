@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  gateway: 'http://localhost:5000'
+  gateway: 'https://inkwell-gateway.onrender.com'
 };
