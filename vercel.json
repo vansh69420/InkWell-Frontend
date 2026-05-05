@@ -1,6 +1,6 @@
 {
   "buildCommand": "ng build --configuration production",
-  "outputDirectory": "dist/inkwell-frontend",
+  "outputDirectory": "dist/inkwell-frontend/browser",
   "rewrites": [
     {
       "source": "/(.*)",
