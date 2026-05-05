@@ -112,7 +112,7 @@ export class AuthService {
     return this.currentUser()?.role === role;
   }
 
-  lloginWithGoogle(): void {
+  loginWithGoogle(): void {
     window.location.href = `${environment.gateway}/auth/oauth/google`;
   }
 
